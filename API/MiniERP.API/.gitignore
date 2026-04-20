@@ -1,0 +1,10 @@
+in/
+obj/
+.vs/
+.DS_Store
+**/bin/
+**/obj/
+**/.DS_Store
+*.user
+*.suo
+
