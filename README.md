@@ -79,5 +79,5 @@ API_STRUCTURE.md - soubor stromové struktury
 První modul systému.  
 Řeší proces od vytvoření zákazníka, přes objednávku, rezervaci skladu, vystavení faktury až po evidenci úhrady.
 
-➡ Detailní popis procesu je v souboru: RunBook_ORDER_TO_CASH
+- Detailní popis procesu je v souboru: RunBook_ORDER_TO_CASH
 
