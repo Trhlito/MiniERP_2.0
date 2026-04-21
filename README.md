@@ -68,7 +68,7 @@ API_STRUCTURE.md - soubor stromové struktury
 
 ## Post Order
 
-![Swagger 3](docs/swagger_post_orders.png)
+![Swagger_post_orders](docs/images/swagger_post_orders.png)
 
 
 ---
