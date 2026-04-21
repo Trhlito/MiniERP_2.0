@@ -59,13 +59,18 @@ API_STRUCTURE.md - soubor stromové struktury
 
 # Swagger API Overview
 
-## Core Modules
+## Core Modules 
 
-![Swagger Main 1](docs/images/swagger-main-1)
+![Swagger Main 1](docs/images/swagger-main-1.png)
 
-## Finance & Inventory
+![Swagger Main 2](docs/images/swagger-main-2.png)
 
-![Swagger Main 2](docs/images/swagger-main-2)
+
+## Post Order
+
+![Swagger 3](docs/swagger_post_orders.png)
+
+
 ---
 # Moduly
 
