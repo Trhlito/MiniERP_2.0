@@ -72,6 +72,8 @@ API_STRUCTURE.md - soubor stromové struktury
 
 ## SQL Schéma 
 
+![Swagger_post_orders](docs/images/SQL.png)
+
 
 
 
