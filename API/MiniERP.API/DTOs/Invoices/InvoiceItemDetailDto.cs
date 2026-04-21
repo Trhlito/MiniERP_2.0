@@ -1,35 +1,35 @@
 namespace MiniERP.API.DTOs.Invoices;
 
-// -- DTO pro detail položky faktury --
+// DTO pro detail položky faktury
 public class InvoiceItemDetailDto
 {
-    // -- ID položky --
+    // ID položky
     public int Id { get; set; }
 
-    // -- ID produktu --
+    // ID produktu
     public int? ProductId { get; set; }
 
-    // -- Název položky --
+    // Název položky
     public string ItemName { get; set; } = string.Empty;
 
-    // -- Množství --
+    // Množství
     public decimal Quantity { get; set; }
 
-    // -- Cena za jednotku --
+    // Cena za jednotku
     public decimal UnitPrice { get; set; }
 
-    // -- Sazba DPH --
+    // Sazba DPH
     public decimal VatRate { get; set; }
 
-    // -- Sleva v procentech --
+    // Sleva v procentech
     public decimal? DiscountPercent { get; set; }
 
-    // -- Mezisoučet řádku --
+    // Mezisoučet řádku
     public decimal LineSubtotal { get; set; }
 
-    // -- DPH řádku --
+    // DPH řádku
     public decimal LineVatAmount { get; set; }
 
-    // -- Celková cena řádku --
+    // Celková cena řádku
     public decimal LineTotal { get; set; }
 }

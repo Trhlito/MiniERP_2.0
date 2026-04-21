@@ -3,12 +3,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro faktury --
+// Controller pro faktury
 [ApiController]
 [Route("api/[controller]")]
 public class InvoicesController : ControllerBase
 {
-    // -- Service vrstva pro faktury --
+    // Service vrstva pro faktury
     private readonly IInvoiceService _invoiceService;
 
     public InvoicesController(IInvoiceService invoiceService)
@@ -16,7 +16,7 @@ public class InvoicesController : ControllerBase
         _invoiceService = invoiceService;
     }
 
-    // -- Endpoint pro načtení seznamu faktur --
+    // Načtení seznamu faktur
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -24,7 +24,7 @@ public class InvoicesController : ControllerBase
         return Ok(invoices);
     }
 
-    // -- Endpoint pro načtení detailu faktury podle ID --
+    // Načtení detailu faktury podle ID
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -38,7 +38,7 @@ public class InvoicesController : ControllerBase
         return Ok(invoice);
     }
 
-    // -- Endpoint pro vytvoření faktury z objednávky --
+    // Vytvoření faktury z objednávky
     [HttpPost("from-order/{orderId:int}")]
     public async Task<IActionResult> CreateFromOrder(int orderId)
     {

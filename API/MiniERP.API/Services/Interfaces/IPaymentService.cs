@@ -2,15 +2,16 @@ using MiniERP.API.DTOs.Payments;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// -- Rozhraní služby pro platby --
+// Rozhraní pro platby
 public interface IPaymentService
 {
-    // -- Vrátí seznam plateb --
+    // Načtení seznamu plateb
     Task<List<PaymentListItemDto>> GetAllAsync();
 
-    // -- Vrátí detail platby podle ID --
+    // Načtení detailu platby podle ID
     Task<PaymentDetailDto?> GetByIdAsync(int id);
 
-    // -- Vytvoří novou platbu --
-    Task<int> CreateAsync(CreatePaymentRequest request);
+    // Vytvoření nové platby
+    Task<int
+    > CreateAsync(CreatePaymentRequest request);
 }

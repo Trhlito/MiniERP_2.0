@@ -1,32 +1,32 @@
 namespace MiniERP.Data.Entities;
 
-// -- Entita platby --
+// Entita platby
 public class Payment
 {
-    // -- Primární klíč --
+    // Primární klíč
     public int Id { get; set; }
 
-    // -- Odkaz na fakturu --
+    // Odkaz na fakturu
     public int InvoiceId { get; set; }
 
-    // -- Datum platby --
+    // Datum platby
     public DateTime PaymentDate { get; set; }
 
-    // -- Částka platby --
+    // Částka platby
     public decimal Amount { get; set; }
 
-    // -- Metoda platby --
+    // Metoda platby
     public string PaymentMethod { get; set; } = string.Empty;
 
-    // -- Referenční číslo platby --
+    // Referenční číslo platby
     public string? ReferenceNumber { get; set; }
 
-    // -- Poznámka --
+    // Poznámka
     public string? Note { get; set; }
 
-    // -- Uživatel, který platbu vytvořil --
+    // Uživatel co vytvořil platbu
     public int CreatedByUserId { get; set; }
 
-    // -- Datum vytvoření --
+    // Datum vytvoření
     public DateTime CreatedAt { get; set; }
 }

@@ -5,10 +5,10 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro auditní pohyby skladu --
+// Implementace služby pro auditní pohyby skladu
 public class StockMovementService : IStockMovementService
 {
-    // -- Databázový kontext --
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public StockMovementService(ApplicationDbContext db)
@@ -16,7 +16,7 @@ public class StockMovementService : IStockMovementService
         _db = db;
     }
 
-    // -- Vrátí seznam pohybů skladu --
+    // Načtení seznamu pohybů skladu
     public async Task<List<StockMovementListItemDto>> GetAllAsync()
     {
         return await _db.StockMovements
@@ -36,7 +36,7 @@ public class StockMovementService : IStockMovementService
             .ToListAsync();
     }
 
-    // -- Vrátí detail pohybu skladu podle ID --
+    // Načtení detailu pohybu skladu podle ID
     public async Task<StockMovementDetailDto?> GetByIdAsync(int id)
     {
         return await _db.StockMovements

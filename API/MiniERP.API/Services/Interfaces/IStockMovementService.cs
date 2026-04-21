@@ -2,12 +2,12 @@ using MiniERP.API.DTOs.StockMovements;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// -- Rozhraní služby pro auditní pohyby skladu --
+// Rozhraní pro auditní pohyby skladu
 public interface IStockMovementService
 {
-    // -- Vrátí seznam pohybů skladu --
+    // Načtení seznamu pohybů skladu
     Task<List<StockMovementListItemDto>> GetAllAsync();
 
-    // -- Vrátí detail pohybu skladu podle ID --
+    // Načtení detailu pohybu skladu podle ID
     Task<StockMovementDetailDto?> GetByIdAsync(int id);
 }

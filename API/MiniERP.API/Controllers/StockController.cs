@@ -4,12 +4,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro sklad --
+// Controller pro sklad
 [ApiController]
 [Route("api/[controller]")]
 public class StockController : ControllerBase
 {
-    // -- Service vrstva pro sklad --
+    // Service vrstva pro sklad
     private readonly IStockService _stockService;
 
     public StockController(IStockService stockService)
@@ -17,7 +17,7 @@ public class StockController : ControllerBase
         _stockService = stockService;
     }
 
-    // -- Endpoint pro načtení seznamu skladových záznamů --
+    // Načtení seznamu skladových záznamů
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -25,7 +25,7 @@ public class StockController : ControllerBase
         return Ok(stock);
     }
 
-    // -- Endpoint pro načtení detailu skladového záznamu podle ID --
+    // Načtení detailu skladového záznamu podle ID
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -39,11 +39,11 @@ public class StockController : ControllerBase
         return Ok(stockItem);
     }
 
-    // -- Endpoint pro vytvoření skladového záznamu --
+    // Vytvoření skladového záznamu
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateStockRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -57,11 +57,11 @@ public class StockController : ControllerBase
             new { id = newStockId });
     }
 
-    // -- Endpoint pro úpravu skladového záznamu --
+    // Úprava skladového záznamu
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateStockRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -77,7 +77,7 @@ public class StockController : ControllerBase
         return NoContent();
     }
 
-    // -- Endpoint pro smazání skladového záznamu --
+    // Smazání skladového záznamu
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

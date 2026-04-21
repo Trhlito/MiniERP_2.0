@@ -1,26 +1,26 @@
 namespace MiniERP.API.DTOs.Reports;
 
-// -- Souhrnný report tržeb a faktur --
+// Souhrnný report tržeb a faktur
 public class SalesSummaryDto
 {
-    // -- Celkový počet faktur --
+    // Celkový počet faktur
     public int TotalInvoices { get; set; }
 
-    // -- Počet zaplacených faktur --
+    // Počet zaplacených faktur
     public int PaidInvoices { get; set; }
 
-    // -- Počet nezaplacených faktur --
+    // Počet nezaplacených faktur
     public int UnpaidInvoices { get; set; }
 
-    // -- Celková fakturovaná částka --
+    // Celková fakturovaná částka
     public decimal TotalRevenue { get; set; }
 
-    // -- Součet zaplacených faktur --
+    // Součet zaplacených faktur
     public decimal PaidRevenue { get; set; }
 
-    // -- Součet nezaplacených faktur --
+    // Součet nezaplacených faktur
     public decimal UnpaidRevenue { get; set; }
 
-    // -- Reálně přijaté platby --
+    // Reálně přijaté platby
     public decimal PaymentsReceived { get; set; }
 }

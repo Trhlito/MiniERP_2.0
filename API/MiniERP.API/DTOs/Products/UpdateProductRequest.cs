@@ -1,41 +1,41 @@
 namespace MiniERP.API.DTOs.Products;
 
-// -- Request DTO pro úpravu produktu --
+// Request DTO pro úpravu produktu
 public class UpdateProductRequest
 {
-    // -- Kód produktu --
+    // Kód produktu
     public string Code { get; set; } = string.Empty;
 
-    // -- Název produktu --
+    // Název produktu
     public string Name { get; set; } = string.Empty;
 
-    // -- Popis produktu --
+    // Popis produktu
     public string? Description { get; set; }
 
-    // -- Kategorie produktu --
+    // Kategorie produktu
     public int CategoryId { get; set; }
 
-    // -- Dodavatel produktu --
+    // Dodavatel produktu
     public int? SupplierId { get; set; }
 
-    // -- Nákupní cena --
+    // Nákupní cena
     public decimal PurchasePrice { get; set; }
 
-    // -- Prodejní cena --
+    // Prodejní cena
     public decimal SalePrice { get; set; }
 
-    // -- Sazba DPH --
+    // Sazba DPH
     public decimal VatRate { get; set; }
 
-    // -- Jednotka --
+    // Jednotka
     public string? Unit { get; set; }
 
-    // -- Minimální sklad --
+    // Minimální sklad
     public decimal MinimumStock { get; set; }
 
-    // -- Je produkt služba --
+    // Příznak služby
     public bool IsService { get; set; }
 
-    // -- Aktivní produkt --
+    // Stav aktivity produktu
     public bool IsActive { get; set; }
 }

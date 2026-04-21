@@ -4,12 +4,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro objednávky --
+// Controller pro objednávky
 [ApiController]
 [Route("api/[controller]")]
 public class OrdersController : ControllerBase
 {
-    // -- Service vrstva pro objednávky --
+    // Service vrstva pro objednávky
     private readonly IOrderService _orderService;
 
     public OrdersController(IOrderService orderService)
@@ -17,7 +17,7 @@ public class OrdersController : ControllerBase
         _orderService = orderService;
     }
 
-    // -- Endpoint pro načtení seznamu objednávek --
+    // Načtení seznamu objednávek
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -25,7 +25,7 @@ public class OrdersController : ControllerBase
         return Ok(orders);
     }
 
-    // -- Endpoint pro načtení detailu objednávky podle ID --
+    // Načtení detailu objednávky podle ID
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -42,11 +42,11 @@ public class OrdersController : ControllerBase
         return Ok(order);
     }
 
-    // -- Endpoint pro vytvoření nové objednávky --
+    // Vytvoření nové objednávky
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -54,10 +54,10 @@ public class OrdersController : ControllerBase
 
         try
         {
-            // -- Vytvoření objednávky --
+            // Vytvoření objednávky
             var newOrderId = await _orderService.CreateAsync(request);
 
-            // -- Vrácení Created odpovědi s odkazem na detail --
+            // Vrácení Created odpovědi s odkazem na detail
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = newOrderId },
@@ -76,11 +76,11 @@ public class OrdersController : ControllerBase
         }
     }
 
-    // -- Endpoint pro úpravu objednávky --
+    // Úprava objednávky
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateOrderRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -112,7 +112,7 @@ public class OrdersController : ControllerBase
         }
     }
 
-    // -- Endpoint pro smazání objednávky --
+    // Smazání objednávky
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -142,7 +142,7 @@ public class OrdersController : ControllerBase
         }
     }
 
-    // -- Endpoint pro rezervaci skladu pro objednávku --
+    // Rezervace skladu pro objednávku
     [HttpPost("{id:int}/reserve-stock")]
     public async Task<IActionResult> ReserveStock(int id)
     {
@@ -172,7 +172,7 @@ public class OrdersController : ControllerBase
         });
     }
 
-    // -- Endpoint pro uvolnění rezervace skladu pro objednávku --
+    // Uvolnění rezervace skladu pro objednávku
     [HttpPost("{id:int}/release-stock")]
     public async Task<IActionResult> ReleaseStock(int id)
     {

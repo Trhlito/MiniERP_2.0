@@ -8,64 +8,48 @@ using MiniERP.API.Validators.Customers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -- Registrace CustomerService pro dependency injection --
+// Registrace Service pro dependency injection
 builder.Services.AddScoped<ICustomerService, CustomerService>();
-
-// Registrace ProductService pro dependency injection --
 builder.Services.AddScoped<IProductService, ProductService>();
-
-// Registrace OrderService pro dependency injection --
 builder.Services.AddScoped<IOrderService, OrderService>();
-
-// Registrace StockService pro dependency injection --
 builder.Services.AddScoped<IStockService, StockService>();
-
-// Registrace StockMovementService 
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
-
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-    
-// -- Přidání podpory pro controllery --
+
+// Přidání podpory pro controllery
 builder.Services.AddControllers();
 
-// -- Zapnutí FluentValidation auto-validace --
+// Zapnutí FluentValidation auto-validace
 builder.Services.AddFluentValidationAutoValidation();
 
-// -- Registrace všech validatorů z assembly --
+// Registrace validátorů z assembly
 builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerRequestValidator>();
 
-
-// -- Přidání Swaggeru pro testování API --
+// Přidání Swaggeru pro testování API
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-// -- Registrace databázového kontextu s connection stringem z konfigurace --
+// Registrace databázového kontextu
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// -- Registrace CustomerService pro dependency injection --
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-
 var app = builder.Build();
 
-// -- Zapnutí Swaggeru v development prostředí --
+// Zapnutí Swaggeru v development prostředí
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// -- Přesměrování na HTTPS --
+// Přesměrování na HTTPS
 app.UseHttpsRedirection();
 
-// -- Zapnutí autorizace --
+// Zapnutí autorizace
 app.UseAuthorization();
 
-// -- Mapování controllerů --
+// Mapování controllerů
 app.MapControllers();
 
 app.Run();

@@ -1,44 +1,44 @@
 namespace MiniERP.API.DTOs.Customers;
 
-// -- DTO pro úpravu existujícího zákazníka --
+// DTO pro úpravu existujícího zákazníka
 public class UpdateCustomerRequest
 {
-    // -- Typ zákazníka: Company / Person --
+    // Typ zákazníka
     public string CustomerType { get; set; } = string.Empty;
 
-    // -- Název firmy --
+    // Název firmy
     public string? CompanyName { get; set; }
 
-    // -- Jméno osoby --
+    // Jméno osoby
     public string? FirstName { get; set; }
 
-    // -- Příjmení osoby --
+    // Příjmení osoby
     public string? LastName { get; set; }
 
-    // -- E-mail zákazníka --
+    // E-mail zákazníka
     public string? Email { get; set; }
 
-    // -- Telefon zákazníka --
+    // Telefon zákazníka
     public string? Phone { get; set; }
 
-    // -- Ulice --
+    // Ulice
     public string? Street { get; set; }
 
-    // -- Město --
+    // Město
     public string? City { get; set; }
 
-    // -- PSČ --
+    // PSČ
     public string? ZipCode { get; set; }
 
-    // -- Země --
+    // Země
     public string? Country { get; set; }
 
-    // -- IČO firmy --
+    // IČO firmy
     public string? ICO { get; set; }
 
-    // -- DIČ firmy --
+    // DIČ firmy
     public string? DIC { get; set; }
 
-    // -- Informace, zda má být zákazník aktivní --
+    // Stav aktivity zákazníka
     public bool IsActive { get; set; }
 }

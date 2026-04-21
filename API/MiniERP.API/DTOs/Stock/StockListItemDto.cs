@@ -1,20 +1,20 @@
 namespace MiniERP.API.DTOs.Stock;
 
-// -- DTO pro seznam skladových záznamů --
+// DTO pro seznam skladových záznamů
 public class StockListItemDto
 {
-    // -- ID záznamu --
+    // ID záznamu
     public int Id { get; set; }
 
-    // -- ID skladu --
+    // ID skladu
     public int WarehouseId { get; set; }
 
-    // -- ID produktu --
+    // ID produktu
     public int ProductId { get; set; }
 
-    // -- Aktuální množství --
+    // Aktuální množství
     public decimal Quantity { get; set; }
 
-    // -- Rezervované množství --
+    // Rezervované množství
     public decimal ReservedQuantity { get; set; }
 }

@@ -6,19 +6,19 @@ using MiniERP.Data.Entities;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro práci se zákazníky --
+// Implementace služby pro práci se zákazníky
 public class CustomerService : ICustomerService
 {
-    // -- Databázový kontext pro přístup k tabulce Customers --
+    // Databázový kontext pro tabulku Customers
     private readonly ApplicationDbContext _db;
 
-    // -- Konstruktor pro injektování databázového kontextu --
+    // Konstruktor pro databázový kontext
     public CustomerService(ApplicationDbContext db)
     {
         _db = db;
     }
 
-    // -- Vrátí seznam všech zákazníků ve formě list DTO --
+    // Načtení seznamu všech zákazníků
     public async Task<List<CustomerListItemDto>> GetAllAsync()
     {
         return await _db.Customers
@@ -38,7 +38,7 @@ public class CustomerService : ICustomerService
             .ToListAsync();
     }
 
-    // -- Vrátí detail jednoho zákazníka podle ID --
+    // Načtení detailu zákazníka podle ID
     public async Task<CustomerDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Customers
@@ -64,7 +64,7 @@ public class CustomerService : ICustomerService
             .FirstOrDefaultAsync();
     }
 
-    // -- Vytvoří nového zákazníka a vrátí jeho ID --
+    // Vytvoření nového zákazníka
     public async Task<int> CreateAsync(CreateCustomerRequest request)
     {
         var customer = new Customer
@@ -91,7 +91,7 @@ public class CustomerService : ICustomerService
         return customer.Id;
     }
 
-    // -- Upraví existujícího zákazníka podle ID --
+    // Úprava existujícího zákazníka podle ID
     public async Task<bool> UpdateAsync(int id, UpdateCustomerRequest request)
     {
         var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);
@@ -121,7 +121,7 @@ public class CustomerService : ICustomerService
         return true;
     }
 
-    // -- Smaže zákazníka podle ID --
+    // Smazání zákazníka podle ID
     public async Task<bool> DeleteAsync(int id)
     {
         var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);

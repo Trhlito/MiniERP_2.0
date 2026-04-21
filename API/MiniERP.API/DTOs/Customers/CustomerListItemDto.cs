@@ -1,23 +1,23 @@
 namespace MiniERP.API.DTOs.Customers;
 
-// -- DTO pro výpis zákazníků v seznamu --
+// DTO pro výpis zákazníků v seznamu
 public class CustomerListItemDto
 {
-    // -- Interní ID zákazníka --
+    // Interní ID zákazníka
     public int Id { get; set; }
 
-    // -- Zobrazované jméno zákazníka (firma nebo celé jméno osoby) --
+    // Zobrazované jméno zákazníka
     public string CustomerName { get; set; } = string.Empty;
 
-    // -- Typ zákazníka: Company / Person --
+    // Typ zákazníka
     public string CustomerType { get; set; } = string.Empty;
 
-    // -- E-mail zákazníka --
+    // E-mail zákazníka
     public string? Email { get; set; }
 
-    // -- Telefon zákazníka --
+    // Telefon zákazníka
     public string? Phone { get; set; }
 
-    // -- Informace, zda je zákazník aktivní --
+    // Stav aktivity zákazníka
     public bool IsActive { get; set; }
 }

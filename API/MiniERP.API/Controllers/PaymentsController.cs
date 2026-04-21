@@ -4,12 +4,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro platby --
+// Controller pro platby
 [ApiController]
 [Route("api/[controller]")]
 public class PaymentsController : ControllerBase
 {
-    // -- Service vrstva pro platby --
+    // Service vrstva pro platby
     private readonly IPaymentService _paymentService;
 
     public PaymentsController(IPaymentService paymentService)
@@ -17,7 +17,7 @@ public class PaymentsController : ControllerBase
         _paymentService = paymentService;
     }
 
-    // -- Endpoint pro načtení seznamu plateb --
+    // Načtení seznamu plateb
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -25,7 +25,7 @@ public class PaymentsController : ControllerBase
         return Ok(payments);
     }
 
-    // -- Endpoint pro načtení detailu platby podle ID --
+    // Načtení detailu platby podle ID
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -39,11 +39,11 @@ public class PaymentsController : ControllerBase
         return Ok(payment);
     }
 
-    // -- Endpoint pro vytvoření nové platby --
+    // Vytvoření nové platby
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePaymentRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -51,10 +51,10 @@ public class PaymentsController : ControllerBase
 
         try
         {
-            // -- Vytvoření nové platby --
+            // Vytvoření nové platby
             var newPaymentId = await _paymentService.CreateAsync(request);
 
-            // -- Vrácení Created odpovědi s odkazem na detail --
+            // Vrácení Created odpovědi s odkazem na detail
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = newPaymentId },

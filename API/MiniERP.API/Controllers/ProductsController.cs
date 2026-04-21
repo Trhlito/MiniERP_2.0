@@ -4,11 +4,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro produkty --
+// Controller pro produkty
 [ApiController]
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
+    // Service vrstva pro produkty
     private readonly IProductService _productService;
 
     public ProductsController(IProductService productService)
@@ -16,7 +17,7 @@ public class ProductsController : ControllerBase
         _productService = productService;
     }
 
-    // -- Endpoint pro načtení seznamu produktů --
+    // Načtení seznamu produktů
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -24,11 +25,11 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-    // -- Endpoint pro vytvoření nového produktu --
+    // Vytvoření nového produktu
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -42,7 +43,7 @@ public class ProductsController : ControllerBase
             new { id = newProductId });
     }
 
-    // -- Endpoint pro detail produktu --
+    // Načtení detailu produktu
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -56,11 +57,11 @@ public class ProductsController : ControllerBase
         return Ok(product);
     }
 
-    // -- Endpoint pro úpravu existujícího produktu --
+    // Úprava existujícího produktu
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request)
     {
-        // -- Pokud validace neprošla, vrátíme chyby --
+        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -76,7 +77,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-    // -- Endpoint pro smazání produktu podle ID --
+    // Smazání produktu podle ID
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

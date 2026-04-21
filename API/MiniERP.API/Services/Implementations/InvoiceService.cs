@@ -7,10 +7,10 @@ using MiniERP.API.Services.Results;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro faktury --
+// Implementace služby pro faktury
 public class InvoiceService : IInvoiceService
 {
-    // -- Databázový kontext --
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public InvoiceService(ApplicationDbContext db)
@@ -18,7 +18,7 @@ public class InvoiceService : IInvoiceService
         _db = db;
     }
 
-    // -- Vrátí seznam faktur --
+    // Načtení seznamu faktur
     public async Task<List<InvoiceListItemDto>> GetAllAsync()
     {
         return await _db.Invoices
@@ -38,7 +38,7 @@ public class InvoiceService : IInvoiceService
             .ToListAsync();
     }
 
-    // -- Vrátí detail faktury podle ID --
+    // Načtení detailu faktury podle ID
     public async Task<InvoiceDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Invoices
@@ -63,7 +63,7 @@ public class InvoiceService : IInvoiceService
                 CreatedAt = i.CreatedAt,
                 UpdatedAt = i.UpdatedAt,
 
-                // -- Položky faktury --
+                // Načtení položek faktury
                 Items = _db.InvoiceItems
                     .Where(x => x.InvoiceId == i.Id)
                     .Select(x => new InvoiceItemDetailDto
@@ -84,10 +84,10 @@ public class InvoiceService : IInvoiceService
             .FirstOrDefaultAsync();
     }
 
-    // -- Vytvoří fakturu z objednávky --
+    // Vytvoření faktury z objednávky
     public async Task<CreateInvoiceFromOrderResult> CreateFromOrderAsync(int orderId)
     {
-        // -- Načtení objednávky --
+        // Načtení objednávky
         var order = await _db.Orders
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -102,7 +102,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // -- Fakturu lze vytvořit jen z objednávky ve stavu Confirmed --
+        // Povolení pouze pro objednávku ve stavu Confirmed
         if (order.Status == "Draft")
         {
             return new CreateInvoiceFromOrderResult
@@ -123,7 +123,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // -- Kontrola, zda už pro objednávku neexistuje faktura --
+        // Kontrola existující faktury pro objednávku
         var existingInvoice = await _db.Invoices
             .AsNoTracking()
             .FirstOrDefaultAsync(i => i.OrderId == orderId);
@@ -138,7 +138,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // -- Načtení položek objednávky --
+        // Načtení položek objednávky
         var orderItems = await _db.OrderItems
             .AsNoTracking()
             .Where(i => i.OrderId == orderId)
@@ -154,7 +154,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // -- Objednávka musí mít kladnou celkovou částku --
+        // Kontrola kladné celkové částky objednávky
         if (order.TotalAmount <= 0)
         {
             return new CreateInvoiceFromOrderResult
@@ -165,10 +165,10 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // -- Jednoduché vygenerování čísla faktury --
+        // Vygenerování čísla faktury
         var invoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{orderId}";
 
-        // -- Vytvoření hlavičky faktury --
+        // Vytvoření hlavičky faktury
         var invoice = new Invoice
         {
             InvoiceNumber = invoiceNumber,
@@ -191,7 +191,7 @@ public class InvoiceService : IInvoiceService
         _db.Invoices.Add(invoice);
         await _db.SaveChangesAsync();
 
-        // -- Přenos položek objednávky do položek faktury --
+        // Přenos položek objednávky do faktury
         foreach (var item in orderItems)
         {
             var invoiceItem = new InvoiceItem

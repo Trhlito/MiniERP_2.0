@@ -1,19 +1,20 @@
 namespace MiniERP.API.DTOs.Products;
 
-// -- DTO pro seznam produktů (zjednodušený pohled pro API) --
+// DTO pro seznam produktů
 public class ProductListItemDto
 {
+    // ID produktu
     public int Id { get; set; }
 
-    // -- Název produktu --
+    // Název produktu
     public string Name { get; set; } = string.Empty;
 
-    // -- Prodejní cena (SalePrice z DB) --
+    // Prodejní cena
     public decimal SalePrice { get; set; }
 
-    // -- Jednotka (ks, kg, m...) --
+    // Jednotka
     public string? Unit { get; set; }
 
-    // -- Aktivní produkt --
+    // Stav aktivity produktu
     public bool IsActive { get; set; }
 }

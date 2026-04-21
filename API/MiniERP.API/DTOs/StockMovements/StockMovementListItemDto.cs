@@ -1,29 +1,29 @@
 namespace MiniERP.API.DTOs.StockMovements;
 
-// -- DTO pro seznam pohybů skladu --
+// DTO pro seznam pohybů skladu
 public class StockMovementListItemDto
 {
-    // -- ID pohybu --
+    // ID pohybu
     public int Id { get; set; }
 
-    // -- ID skladu --
+    // ID skladu
     public int WarehouseId { get; set; }
 
-    // -- ID produktu --
+    // ID produktu
     public int ProductId { get; set; }
 
-    // -- Typ pohybu --
+    // Typ pohybu
     public string MovementType { get; set; } = string.Empty;
 
-    // -- Množství pohybu --
+    // Množství pohybu
     public decimal Quantity { get; set; }
 
-    // -- Typ reference --
+    // Typ reference
     public string? ReferenceType { get; set; }
 
-    // -- ID reference --
+    // ID reference
     public int? ReferenceId { get; set; }
 
-    // -- Datum vytvoření --
+    // Datum vytvoření
     public DateTime CreatedAt { get; set; }
 }

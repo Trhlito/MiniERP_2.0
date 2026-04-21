@@ -3,15 +3,15 @@ using MiniERP.API.Services.Results;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// -- Rozhraní služby pro faktury --
+// Rozhraní pro faktury
 public interface IInvoiceService
 {
-    // -- Vrátí seznam faktur --
+    // Načtení seznamu faktur
     Task<List<InvoiceListItemDto>> GetAllAsync();
 
-    // -- Vrátí detail faktury podle ID --
+    // Načtení detailu faktury podle ID
     Task<InvoiceDetailDto?> GetByIdAsync(int id);
 
-    // -- Vytvoří fakturu z objednávky --
+    // Vytvoření faktury z objednávky
     Task<CreateInvoiceFromOrderResult> CreateFromOrderAsync(int orderId);
 }

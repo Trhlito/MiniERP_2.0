@@ -2,21 +2,21 @@ using MiniERP.API.DTOs.Stock;
 
 namespace MiniERP.API.Services.Interfaces;
 
-    // -- Rozhraní služby pro sklad --
+// Rozhraní pro sklad
 public interface IStockService
 {
-    // -- Vrátí seznam skladových záznamů --
+    // Načtení seznamu skladových záznamů
     Task<List<StockListItemDto>> GetAllAsync();
 
-    // -- Vrátí detail skladového záznamu podle ID --
+    // Načtení detailu skladového záznamu podle ID
     Task<StockDetailDto?> GetByIdAsync(int id);
 
-    // -- Upraví skladový záznam podle ID --
+    // Úprava skladového záznamu podle ID
     Task<bool> UpdateAsync(int id, UpdateStockRequest request);
 
-    // -- Smaže skladový záznam podle ID --
+    // Smazání skladového záznamu podle ID
     Task<bool> DeleteAsync(int id);
 
-    // -- Vytvoří nový skladový záznam --
+    // Vytvoření nového skladového záznamu
     Task<int> CreateAsync(CreateStockRequest request);
 }

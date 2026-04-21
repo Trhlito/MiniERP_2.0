@@ -1,17 +1,17 @@
 namespace MiniERP.API.DTOs.Orders;
 
-// -- Request DTO pro úpravu hlavičky objednávky --
+// Request DTO pro úpravu hlavičky objednávky
 public class UpdateOrderRequest
 {
-    // -- Požadovaný termín --
+    // Požadovaný termín
     public DateTime? RequiredDate { get; set; }
 
-    // -- Stav objednávky --
+    // Stav objednávky
     public string Status { get; set; } = string.Empty;
 
-    // -- Měna --
+    // Měna
     public string Currency { get; set; } = string.Empty;
 
-    // -- Poznámka --
+    // Poznámka
     public string? Note { get; set; }
 }

@@ -1,49 +1,50 @@
 namespace MiniERP.API.DTOs.Orders;
 
-// -- DTO pro detail objednávky --
+// DTO pro detail objednávky
 public class OrderDetailDto
 {
+    // ID objednávky
     public int Id { get; set; }
 
-    // -- Číslo objednávky --
+    // Číslo objednávky
     public string OrderNumber { get; set; } = string.Empty;
 
-    // -- ID zákazníka --
+    // ID zákazníka
     public int CustomerId { get; set; }
 
-    // -- Datum objednávky --
+    // Datum objednávky
     public DateTime OrderDate { get; set; }
 
-    // -- Požadovaný termín --
+    // Požadovaný termín
     public DateTime? RequiredDate { get; set; }
 
-    // -- Stav objednávky --
+    // Stav objednávky
     public string Status { get; set; } = string.Empty;
 
-    // -- Mezisoučet bez DPH --
+    // Mezisoučet bez DPH
     public decimal Subtotal { get; set; }
 
-    // -- Celkové DPH --
+    // Celkové DPH
     public decimal VatTotal { get; set; }
 
-    // -- Celková částka --
+    // Celková částka
     public decimal TotalAmount { get; set; }
 
-    // -- Měna --
+    // Měna
     public string Currency { get; set; } = string.Empty;
 
-    // -- Poznámka --
+    // Poznámka
     public string? Note { get; set; }
 
-    // -- ID uživatele, který objednávku vytvořil --
+    // ID uživatele vytvoření objednávky
     public int CreatedByUserId { get; set; }
 
-    // -- Datum vytvoření --
+    // Datum vytvoření
     public DateTime CreatedAt { get; set; }
 
-    // -- Datum poslední úpravy --
+    // Datum poslední úpravy
     public DateTime? UpdatedAt { get; set; }
 
-    // -- Položky objednávky --
+    // Položky objednávky
     public List<OrderItemDetailDto> Items { get; set; } = new();
 }

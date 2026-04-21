@@ -1,14 +1,14 @@
 namespace MiniERP.API.Services.Results;
 
-// -- Výsledek rezervace skladu pro objednávku --
+// Výsledek rezervace skladu pro objednávku
 public class ReserveStockResult
 {
-    // -- Indikace úspěchu --
+    // Stav úspěchu operace
     public bool Success { get; set; }
 
-    // -- Kód chyby pro controller --
+    // Kód chyby pro controller
     public string? ErrorCode { get; set; }
 
-    // -- Textová zpráva --
+    // Text zprávy
     public string Message { get; set; } = string.Empty;
 }

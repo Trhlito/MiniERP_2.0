@@ -3,36 +3,36 @@ using MiniERP.API.DTOs.Customers;
 
 namespace MiniERP.API.Validators.Customers;
 
-// -- Validátor pro vytvoření zákazníka --
+// Validátor pro vytvoření zákazníka
 public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRequest>
 {
     public CreateCustomerRequestValidator()
     {
-        // -- CustomerType musí být Company nebo Person --
+        // Povolené hodnoty pro CustomerType
         RuleFor(x => x.CustomerType)
             .NotEmpty()
             .Must(type => type == "Company" || type == "Person")
             .WithMessage("CustomerType musí být 'Company' nebo 'Person'.");
 
-        // -- Firma musí mít CompanyName --
+        // Povinný CompanyName pro firmu
         RuleFor(x => x.CompanyName)
             .NotEmpty()
             .When(x => x.CustomerType == "Company")
             .WithMessage("Firma musí mít vyplněný CompanyName.");
 
-        // -- Osoba musí mít FirstName --
+        // Povinný FirstName pro osobu
         RuleFor(x => x.FirstName)
             .NotEmpty()
             .When(x => x.CustomerType == "Person")
             .WithMessage("Osoba musí mít vyplněné FirstName.");
 
-        // -- Osoba musí mít LastName --
+        // Povinný LastName pro osobu
         RuleFor(x => x.LastName)
             .NotEmpty()
             .When(x => x.CustomerType == "Person")
             .WithMessage("Osoba musí mít vyplněné LastName.");
 
-        // -- Email musí mít správný formát, pokud je vyplněn --
+        // Kontrola formátu e-mailu
         RuleFor(x => x.Email)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.Email))

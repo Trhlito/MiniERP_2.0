@@ -7,9 +7,10 @@ using MiniERP.API.Services.Results;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro objednávky --
+// Implementace služby pro objednávky
 public class OrderService : IOrderService
 {
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public OrderService(ApplicationDbContext db)
@@ -17,7 +18,7 @@ public class OrderService : IOrderService
         _db = db;
     }
 
-    // -- Vrátí seznam objednávek --
+    // Načtení seznamu objednávek
     public async Task<List<OrderListItemDto>> GetAllAsync()
     {
         return await _db.Orders
@@ -36,7 +37,7 @@ public class OrderService : IOrderService
             .ToListAsync();
     }
 
-    // -- Vrátí detail objednávky podle ID včetně položek --
+    // Načtení detailu objednávky podle ID včetně položek
     public async Task<OrderDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Orders
@@ -59,7 +60,7 @@ public class OrderService : IOrderService
                 CreatedAt = o.CreatedAt,
                 UpdatedAt = o.UpdatedAt,
 
-                // -- Mapování položek objednávky --
+                // Mapování položek objednávky
                 Items = _db.OrderItems
                     .Where(i => i.OrderId == o.Id)
                     .Select(i => new OrderItemDetailDto
@@ -80,10 +81,10 @@ public class OrderService : IOrderService
             .FirstOrDefaultAsync();
     }
 
-    // -- Vytvoří novou objednávku včetně položek a vrátí její ID --
+    // Vytvoření nové objednávky včetně položek
     public async Task<int> CreateAsync(CreateOrderRequest request)
     {
-        // -- Kontrola existence zákazníka --
+        // Kontrola existence zákazníka
         var customerExists = await _db.Customers
             .AsNoTracking()
             .AnyAsync(c => c.Id == request.CustomerId);
@@ -93,25 +94,25 @@ public class OrderService : IOrderService
             throw new Exception($"Zákazník s ID {request.CustomerId} neexistuje.");
         }
 
-        // -- Kontrola, že objednávka obsahuje položky --
+        // Kontrola existence položek objednávky
         if (request.Items == null || !request.Items.Any())
         {
             throw new Exception("Objednávka musí obsahovat alespoň jednu položku.");
         }
 
-        // -- Seznam ID produktů z requestu --
+        // Seznam ID produktů z requestu
         var requestedProductIds = request.Items
             .Select(i => i.ProductId)
             .Distinct()
             .ToList();
 
-        // -- Načtení existujících produktů z databáze --
+        // Načtení existujících produktů z databáze
         var existingProducts = await _db.Products
             .AsNoTracking()
             .Where(p => requestedProductIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id);
 
-        // -- Kontrola existence všech produktů --
+        // Kontrola existence všech produktů
         var missingProductIds = requestedProductIds
             .Where(productId => !existingProducts.ContainsKey(productId))
             .ToList();
@@ -122,12 +123,12 @@ public class OrderService : IOrderService
                 $"Některé produkty neexistují. Chybějící ProductId: {string.Join(", ", missingProductIds)}");
         }
 
-        // -- Výpočet součtů objednávky --
+        // Výpočet součtů objednávky
         decimal subtotal = 0m;
         decimal vatTotal = 0m;
         decimal totalAmount = 0m;
 
-        // -- Vytvoření hlavičky objednávky --
+        // Vytvoření hlavičky objednávky
         var order = new Order
         {
             OrderNumber = request.OrderNumber,
@@ -144,27 +145,27 @@ public class OrderService : IOrderService
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
 
-        // -- Vytvoření položek objednávky --
+        // Vytvoření položek objednávky
         foreach (var item in request.Items)
         {
-            // -- Načtení produktu z již ověřených dat --
+            // Načtení produktu z ověřených dat
             var product = existingProducts[item.ProductId];
 
-            // -- Pokud ItemName není vyplněný, doplníme ho z produktu --
+            // Doplnění názvu položky z produktu
             var itemName = string.IsNullOrWhiteSpace(item.ItemName)
                 ? product.Name
                 : item.ItemName.Trim();
 
             var discountPercent = item.DiscountPercent ?? 0m;
 
-            // -- Výpočet mezisoučtu po slevě --
+            // Výpočet mezisoučtu po slevě
             var lineSubtotal = item.Quantity * item.UnitPrice;
             lineSubtotal = lineSubtotal * (1 - (discountPercent / 100m));
 
-            // -- Výpočet DPH řádku --
+            // Výpočet DPH řádku
             var lineVatAmount = lineSubtotal * (item.VatRate / 100m);
 
-            // -- Výpočet celku řádku --
+            // Výpočet celkové částky řádku
             var lineTotal = lineSubtotal + lineVatAmount;
 
             var orderItem = new OrderItem
@@ -188,10 +189,10 @@ public class OrderService : IOrderService
             totalAmount += lineTotal;
         }
 
-        // -- Uložení položek --
+        // Uložení položek objednávky
         await _db.SaveChangesAsync();
 
-        // -- Doplnění součtů do hlavičky objednávky --
+        // Doplnění součtů do hlavičky objednávky
         order.Subtotal = subtotal;
         order.VatTotal = vatTotal;
         order.TotalAmount = totalAmount;
@@ -202,10 +203,10 @@ public class OrderService : IOrderService
         return order.Id;
     }
 
-    // -- Upraví hlavičku objednávky podle ID --
+    // Úprava hlavičky objednávky podle ID
     public async Task<bool> UpdateAsync(int id, UpdateOrderRequest request)
     {
-        // -- Načtení objednávky --
+        // Načtení objednávky
         var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
 
         if (order == null)
@@ -213,24 +214,24 @@ public class OrderService : IOrderService
             return false;
         }
 
-        // -- Pokud je objednávka Confirmed, povolíme jen omezené změny --
+        // Omezení změn pro stav Confirmed
         if (order.Status == "Confirmed")
         {
-            // -- Nepovolit ruční změnu statusu potvrzené objednávky --
+            // Blokace ruční změny statusu
             if (request.Status != order.Status)
             {
                 throw new Exception(
                     $"Objednávku {order.OrderNumber} ve stavu Confirmed nelze ručně přepnout na jiný status.");
             }
 
-            // -- Nepovolit změnu měny u potvrzené objednávky --
+            // Blokace změny měny
             if (request.Currency != order.Currency)
             {
                 throw new Exception(
                     $"Objednávce {order.OrderNumber} ve stavu Confirmed nelze změnit měnu.");
             }
 
-            // -- U Confirmed objednávky povolíme jen změnu poznámky a required date --
+            // Omezený update pro Confirmed objednávku
             order.RequiredDate = request.RequiredDate;
             order.Note = request.Note;
             order.UpdatedAt = DateTime.UtcNow;
@@ -239,7 +240,7 @@ public class OrderService : IOrderService
             return true;
         }
 
-        // -- U Draft objednávky povolíme běžný update --
+        // Běžný update pro Draft objednávku
         if (order.Status == "Draft")
         {
             order.RequiredDate = request.RequiredDate;
@@ -252,32 +253,32 @@ public class OrderService : IOrderService
             return true;
         }
 
-        // -- Ostatní stavy zatím nepovolujeme upravovat --
+        // Blokace úpravy pro ostatní stavy
         throw new Exception(
             $"Objednávku {order.OrderNumber} ve stavu {order.Status} zatím nelze upravovat.");
     }
 
-    // -- Smaže objednávku podle ID včetně položek --
+    // Smazání objednávky podle ID včetně položek
     public async Task<bool> DeleteAsync(int id)
     {
-        // -- Najdeme objednávku --
+        // Načtení objednávky
         var order = await _db.Orders
             .FirstOrDefaultAsync(o => o.Id == id);
 
-        // -- Pokud neexistuje --
+        // Kontrola existence objednávky
         if (order == null)
         {
             return false;
         }
 
-        // -- Nepovolit smazání potvrzené objednávky --
+        // Blokace smazání pro stav Confirmed
         if (order.Status == "Confirmed")
         {
             throw new Exception(
                 $"Objednávku {order.OrderNumber} nelze smazat, protože je ve stavu Confirmed.");
         }
 
-        // -- Nepovolit smazání objednávky, ke které existuje faktura --
+        // Kontrola existence faktury k objednávce
         var hasInvoice = await _db.Invoices
             .AsNoTracking()
             .AnyAsync(i => i.OrderId == order.Id);
@@ -288,12 +289,12 @@ public class OrderService : IOrderService
                 $"Objednávku {order.OrderNumber} nelze smazat, protože k ní existuje faktura.");
         }
 
-        // -- Načtení položek objednávky --
+        // Načtení položek objednávky
         var items = await _db.OrderItems
             .Where(i => i.OrderId == id)
             .ToListAsync();
 
-        // -- Smazání položek a hlavičky --
+        // Smazání položek a hlavičky objednávky
         _db.OrderItems.RemoveRange(items);
         _db.Orders.Remove(order);
 
@@ -302,10 +303,10 @@ public class OrderService : IOrderService
         return true;
     }
 
-    // -- Provede rezervaci skladu pro objednávku --
+    // Rezervace skladu pro objednávku
     public async Task<ReserveStockResult> ReserveStockAsync(int orderId)
     {
-        // -- Načtení objednávky --
+        // Načtení objednávky
         var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (order == null)
@@ -318,7 +319,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Pokud už je objednávka Confirmed, rezervace už byla provedena --
+        // Kontrola existující rezervace skladu
         if (order.Status == "Confirmed")
         {
             return new ReserveStockResult
@@ -329,7 +330,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Rezervaci dovolíme jen pro Draft --
+        // Povolení rezervace pouze pro Draft
         if (order.Status != "Draft")
         {
             return new ReserveStockResult
@@ -340,7 +341,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Načtení položek objednávky --
+        // Načtení položek objednávky
         var orderItems = await _db.OrderItems
             .Where(i => i.OrderId == orderId)
             .ToListAsync();
@@ -355,13 +356,13 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Transakce pro bezpečné provedení celé operace --
+        // Transakce pro celou operaci rezervace
         using var transaction = await _db.Database.BeginTransactionAsync();
 
-        // -- Nejprve kontrola dostupnosti všech položek --
+        // Kontrola dostupnosti všech položek
         foreach (var item in orderItems)
         {
-            // -- Pro první verzi hledáme sklad podle ProductId --
+            // Načtení skladu podle ProductId
             var stock = await _db.Stock
                 .FirstOrDefaultAsync(s => s.ProductId == item.ProductId);
 
@@ -375,7 +376,7 @@ public class OrderService : IOrderService
                 };
             }
 
-            // -- Výpočet volného množství --
+            // Výpočet volného množství
             var availableQuantity = stock.Quantity - stock.ReservedQuantity;
 
             if (availableQuantity < item.Quantity)
@@ -389,7 +390,7 @@ public class OrderService : IOrderService
             }
         }
 
-        // -- Pokud vše prošlo, provedeme rezervaci a zapíšeme stock movement --
+        // Provedení rezervace a zápis auditního pohybu
         foreach (var item in orderItems)
         {
             var stock = await _db.Stock
@@ -405,19 +406,19 @@ public class OrderService : IOrderService
                 };
             }
 
-            // -- Uložení hodnot před změnou --
+            // Uložení hodnot před změnou
             var quantityBefore = stock.Quantity;
             var reservedBefore = stock.ReservedQuantity;
 
-            // -- Provedení rezervace --
+            // Provedení rezervace
             stock.ReservedQuantity += item.Quantity;
             stock.LastUpdatedAt = DateTime.UtcNow;
 
-            // -- Uložení hodnot po změně --
+            // Uložení hodnot po změně
             var quantityAfter = stock.Quantity;
             var reservedAfter = stock.ReservedQuantity;
 
-            // -- Vytvoření auditního záznamu pohybu skladu --
+            // Vytvoření auditního záznamu pohybu skladu
             var stockMovement = new StockMovement
             {
                 StockId = stock.Id,
@@ -439,7 +440,7 @@ public class OrderService : IOrderService
             _db.StockMovements.Add(stockMovement);
         }
 
-        // -- Změna stavu objednávky na Confirmed --
+        // Změna stavu objednávky na Confirmed
         order.Status = "Confirmed";
         order.UpdatedAt = DateTime.UtcNow;
 
@@ -453,10 +454,10 @@ public class OrderService : IOrderService
         };
     }
 
-    // -- Uvolní rezervaci skladu pro objednávku --
+    // Uvolnění rezervace skladu pro objednávku
     public async Task<ReserveStockResult> ReleaseStockAsync(int orderId)
     {
-        // -- Načtení objednávky --
+        // Načtení objednávky
         var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (order == null)
@@ -469,7 +470,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Pokud už je Draft, není co uvolnit --
+        // Kontrola chybějící rezervace skladu
         if (order.Status == "Draft")
         {
             return new ReserveStockResult
@@ -480,7 +481,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Povolený stav je jen Confirmed --
+        // Povolení uvolnění pouze pro Confirmed
         if (order.Status != "Confirmed")
         {
             return new ReserveStockResult
@@ -491,7 +492,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Načtení položek objednávky --
+        // Načtení položek objednávky
         var orderItems = await _db.OrderItems
             .Where(i => i.OrderId == orderId)
             .ToListAsync();
@@ -506,10 +507,10 @@ public class OrderService : IOrderService
             };
         }
 
-        // -- Transakce pro bezpečné provedení celé operace --
+        // Transakce pro celou operaci uvolnění
         using var transaction = await _db.Database.BeginTransactionAsync();
 
-        // -- Nejprve zkontrolujeme, že je co uvolnit --
+        // Kontrola rezervovaného množství pro uvolnění
         foreach (var item in orderItems)
         {
             var stock = await _db.Stock
@@ -536,7 +537,7 @@ public class OrderService : IOrderService
             }
         }
 
-        // -- Pokud vše prošlo, uvolníme rezervace a zapíšeme stock movement --
+        // Uvolnění rezervace a zápis auditního pohybu
         foreach (var item in orderItems)
         {
             var stock = await _db.Stock
@@ -552,19 +553,19 @@ public class OrderService : IOrderService
                 };
             }
 
-            // -- Uložení hodnot před změnou --
+            // Uložení hodnot před změnou
             var quantityBefore = stock.Quantity;
             var reservedBefore = stock.ReservedQuantity;
 
-            // -- Uvolnění rezervace --
+            // Uvolnění rezervace
             stock.ReservedQuantity -= item.Quantity;
             stock.LastUpdatedAt = DateTime.UtcNow;
 
-            // -- Uložení hodnot po změně --
+            // Uložení hodnot po změně
             var quantityAfter = stock.Quantity;
             var reservedAfter = stock.ReservedQuantity;
 
-            // -- Vytvoření auditního záznamu pohybu skladu --
+            // Vytvoření auditního záznamu pohybu skladu
             var stockMovement = new StockMovement
             {
                 StockId = stock.Id,
@@ -586,7 +587,7 @@ public class OrderService : IOrderService
             _db.StockMovements.Add(stockMovement);
         }
 
-        // -- Vrácení objednávky zpět do Draft --
+        // Vrácení objednávky do stavu Draft
         order.Status = "Draft";
         order.UpdatedAt = DateTime.UtcNow;
 

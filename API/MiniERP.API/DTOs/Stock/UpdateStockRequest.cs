@@ -1,11 +1,11 @@
 namespace MiniERP.API.DTOs.Stock;
 
-// -- Request DTO pro úpravu skladového záznamu --
+// Request DTO pro úpravu skladového záznamu
 public class UpdateStockRequest
 {
-    // -- Aktuální množství --
+    // Aktuální množství
     public decimal Quantity { get; set; }
 
-    // -- Rezervované množství --
+    // Rezervované množství
     public decimal ReservedQuantity { get; set; }
 }

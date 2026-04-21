@@ -1,26 +1,26 @@
 namespace MiniERP.API.DTOs.Payments;
 
-// -- Request DTO pro vytvoření platby --
+// Request DTO pro vytvoření platby
 public class CreatePaymentRequest
 {
-    // -- ID faktury --
+    // ID faktury
     public int InvoiceId { get; set; }
 
-    // -- Datum platby --
+    // Datum platby
     public DateTime PaymentDate { get; set; }
 
-    // -- Částka platby --
+    // Částka platby
     public decimal Amount { get; set; }
 
-    // -- Metoda platby --
+    // Metoda platby
     public string PaymentMethod { get; set; } = string.Empty;
 
-    // -- Referenční číslo --
+    // Referenční číslo
     public string? ReferenceNumber { get; set; }
 
-    // -- Poznámka --
+    // Poznámka
     public string? Note { get; set; }
 
-    // -- ID uživatele, který platbu vytváří --
+    // ID uživatele který platbu vytvořil
     public int CreatedByUserId { get; set; }
 }

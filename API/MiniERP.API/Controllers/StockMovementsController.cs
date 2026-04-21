@@ -3,11 +3,12 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// -- Controller pro auditní pohyby skladu --
+// Controller pro auditní pohyby skladu
 [ApiController]
 [Route("api/[controller]")]
 public class StockMovementsController : ControllerBase
 {
+    // Service vrstva pro auditní pohyby skladu
     private readonly IStockMovementService _stockMovementService;
 
     public StockMovementsController(IStockMovementService stockMovementService)
@@ -15,7 +16,7 @@ public class StockMovementsController : ControllerBase
         _stockMovementService = stockMovementService;
     }
 
-    // -- Endpoint pro načtení seznamu pohybů skladu --
+    // Načtení seznamu pohybů skladu
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -23,7 +24,7 @@ public class StockMovementsController : ControllerBase
         return Ok(movements);
     }
 
-    // -- Endpoint pro načtení detailu pohybu skladu podle ID --
+    // Načtení detailu pohybu skladu podle ID
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {

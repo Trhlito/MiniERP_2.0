@@ -5,9 +5,10 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro produkty --
+// Implementace služby pro produkty
 public class ProductService : IProductService
 {
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public ProductService(ApplicationDbContext db)
@@ -15,7 +16,7 @@ public class ProductService : IProductService
         _db = db;
     }
 
-    // -- Vrátí seznam produktů --
+    // Načtení seznamu produktů
     public async Task<List<ProductListItemDto>> GetAllAsync()
     {
         return await _db.Products
@@ -31,7 +32,7 @@ public class ProductService : IProductService
         .ToListAsync();    
     }    
 
-    // -- Vytvoří nový produkt a vrátí jeho ID --
+    // Vytvoření nového produktu
     public async Task<int> CreateAsync(CreateProductRequest request)
     {
         var product = new Product
@@ -57,7 +58,7 @@ public class ProductService : IProductService
         return product.Id;
     }
 
-    // -- Vrátí detail produktu podle ID --
+    // Načtení detailu produktu podle ID
     public async Task<ProductDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Products
@@ -82,7 +83,7 @@ public class ProductService : IProductService
             .FirstOrDefaultAsync();
     }
 
-    // -- Upraví existující produkt podle ID --
+    // Úprava existujícího produktu podle ID
     public async Task<bool> UpdateAsync(int id, UpdateProductRequest request)
     {
         var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
@@ -111,7 +112,7 @@ public class ProductService : IProductService
         return true;
     }
 
-    // -- Smaže produkt podle ID --
+    // Smazání produktu podle ID
     public async Task<bool> DeleteAsync(int id)
     {
         var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);

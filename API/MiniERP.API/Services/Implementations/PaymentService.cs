@@ -6,9 +6,10 @@ using MiniERP.Data.Entities;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro platby --
+// Implementace služby pro platby
 public class PaymentService : IPaymentService
 {
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public PaymentService(ApplicationDbContext db)
@@ -16,7 +17,7 @@ public class PaymentService : IPaymentService
         _db = db;
     }
 
-    // -- Vrátí seznam plateb --
+    // Načtení seznamu plateb
     public async Task<List<PaymentListItemDto>> GetAllAsync()
     {
         return await _db.Payments
@@ -34,7 +35,7 @@ public class PaymentService : IPaymentService
             .ToListAsync();
     }
 
-    // -- Vrátí detail platby --
+    // Načtení detailu platby
     public async Task<PaymentDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Payments
@@ -55,10 +56,10 @@ public class PaymentService : IPaymentService
             .FirstOrDefaultAsync();
     }
 
-    // -- Vytvoří novou platbu --
+    // Vytvoření nové platby
     public async Task<int> CreateAsync(CreatePaymentRequest request)
     {
-        // -- Najdi fakturu --
+        // Načtení faktury
         var invoice = await _db.Invoices
             .FirstOrDefaultAsync(i => i.Id == request.InvoiceId);
 
@@ -67,22 +68,22 @@ public class PaymentService : IPaymentService
             throw new Exception("Faktura neexistuje.");
         }
 
-        // -- Součet již zaplacených plateb --
+        // Součet již zaplacených plateb
         var alreadyPaid = await _db.Payments
             .Where(p => p.InvoiceId == request.InvoiceId)
             .SumAsync(p => (decimal?)p.Amount) ?? 0m;
 
-        // -- Kolik zbývá doplatit --
+        // Výpočet zbývající částky
         var remaining = invoice.TotalAmount - alreadyPaid;
 
-        // -- Nepovolit přeplatek --
+        // Blokace přeplatku
         if (request.Amount > remaining)
         {
             throw new Exception(
                 $"Platba je vyšší než zbývající částka. Zbývá uhradit {remaining}.");
         }
 
-        // -- Vytvoření platby --
+        // Vytvoření platby
         var payment = new Payment
         {
             InvoiceId = request.InvoiceId,
@@ -98,10 +99,10 @@ public class PaymentService : IPaymentService
         _db.Payments.Add(payment);
         await _db.SaveChangesAsync();
 
-        // -- Přepočet po nové platbě --
+        // Přepočet po nové platbě
         var newPaidTotal = alreadyPaid + request.Amount;
 
-        // -- Pokud uhrazeno celé, označíme fakturu jako Paid --
+        // Nastavení stavu Paid při plné úhradě
         if (newPaidTotal >= invoice.TotalAmount)
         {
             invoice.Status = "Paid";
@@ -109,7 +110,7 @@ public class PaymentService : IPaymentService
         }
         else
         {
-            // -- Při částečné úhradě ponecháme stav Issued --
+            // Ponechání stavu Issued při částečné úhradě
             invoice.Status = "Issued";
             invoice.PaidDate = null;
         }

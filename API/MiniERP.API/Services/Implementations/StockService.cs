@@ -5,10 +5,10 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// -- Implementace služby pro sklad --
+// Implementace služby pro sklad
 public class StockService : IStockService
 {
-    // -- Databázový kontext --
+    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public StockService(ApplicationDbContext db)
@@ -16,7 +16,7 @@ public class StockService : IStockService
         _db = db;
     }
 
-    // -- Vrátí seznam skladových záznamů --
+    // Načtení seznamu skladových záznamů
     public async Task<List<StockListItemDto>> GetAllAsync()
     {
         return await _db.Stock
@@ -33,7 +33,7 @@ public class StockService : IStockService
             .ToListAsync();
     }
 
-    // -- Vrátí detail skladového záznamu podle ID --
+    // Načtení detailu skladového záznamu podle ID
     public async Task<StockDetailDto?> GetByIdAsync(int id)
     {
         return await _db.Stock
@@ -51,7 +51,7 @@ public class StockService : IStockService
             .FirstOrDefaultAsync();
     }
 
-    // -- Upraví skladový záznam podle ID --
+    // Úprava skladového záznamu podle ID
     public async Task<bool> UpdateAsync(int id, UpdateStockRequest request)
     {
         var stock = await _db.Stock.FirstOrDefaultAsync(s => s.Id == id);
@@ -70,7 +70,7 @@ public class StockService : IStockService
         return true;
     }
 
-    // -- Smaže skladový záznam podle ID --
+    // Smazání skladového záznamu podle ID
     public async Task<bool> DeleteAsync(int id)
     {
         var stock = await _db.Stock.FirstOrDefaultAsync(s => s.Id == id);
@@ -86,7 +86,7 @@ public class StockService : IStockService
         return true;
     }
 
-    // -- Vytvoří nový skladový záznam a vrátí jeho ID --
+    // Vytvoření nového skladového záznamu
     public async Task<int> CreateAsync(CreateStockRequest request)
     {
         var stock = new MiniERP.Data.Entities.Stock

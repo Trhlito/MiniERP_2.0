@@ -1,29 +1,29 @@
 namespace MiniERP.API.DTOs.Invoices;
 
-// -- DTO pro seznam faktur --
+// DTO pro seznam faktur
 public class InvoiceListItemDto
 {
-    // -- ID faktury --
+    // ID faktury
     public int Id { get; set; }
 
-    // -- Číslo faktury --
+    // Číslo faktury
     public string InvoiceNumber { get; set; } = string.Empty;
 
-    // -- ID objednávky --
+    // ID objednávky
     public int? OrderId { get; set; }
 
-    // -- ID zákazníka --
+    // ID zákazníka
     public int CustomerId { get; set; }
 
-    // -- Datum vystavení --
+    // Datum vystavení
     public DateTime IssueDate { get; set; }
 
-    // -- Stav faktury --
+    // Stav faktury
     public string Status { get; set; } = string.Empty;
 
-    // -- Celková částka --
+    // Celková částka
     public decimal TotalAmount { get; set; }
 
-    // -- Měna --
+    // Měna
     public string Currency { get; set; } = string.Empty;
 }

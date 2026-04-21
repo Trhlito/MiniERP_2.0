@@ -3,48 +3,48 @@ using MiniERP.API.DTOs.Orders;
 
 namespace MiniERP.API.Validators.Orders;
 
-// -- Validátor pro vytvoření objednávky --
+// Validátor pro vytvoření objednávky
 public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
 {
     public CreateOrderRequestValidator()
     {
-        // -- OrderNumber je povinné --
+        // Kontrola povinného OrderNumber
         RuleFor(x => x.OrderNumber)
             .NotEmpty()
             .MaximumLength(50)
             .WithMessage("OrderNumber je povinné a může mít maximálně 50 znaků.");
 
-        // -- CustomerId musí být větší než 0 --
+        // Kontrola hodnoty CustomerId
         RuleFor(x => x.CustomerId)
             .GreaterThan(0)
             .WithMessage("CustomerId musí být větší než 0.");
 
-        // -- Status je povinný --
+        // Kontrola povolených hodnot Status
         RuleFor(x => x.Status)
             .Must(status => new[] { "Draft", "Confirmed", "Completed", "Cancelled" }.Contains(status))
             .WithMessage("Status musí být: Draft, Confirmed, Completed nebo Cancelled.");
 
-        // -- Currency je povinná --
+        // Kontrola povinné Currency
         RuleFor(x => x.Currency)
             .NotEmpty()
             .MaximumLength(10)
             .WithMessage("Currency je povinná a může mít maximálně 10 znaků.");
 
-        // -- CreatedByUserId musí být větší než 0 --
+        // Kontrola hodnoty CreatedByUserId
         RuleFor(x => x.CreatedByUserId)
             .GreaterThan(0)
             .WithMessage("CreatedByUserId musí být větší než 0.");
 
-        // -- Objednávka musí mít alespoň jednu položku --
+        // Kontrola existence položek objednávky
         RuleFor(x => x.Items)
             .NotEmpty()
             .WithMessage("Objednávka musí obsahovat alespoň jednu položku.");
 
-        // -- Validace každé položky --
+        // Validace jednotlivých položek
         RuleForEach(x => x.Items)
             .SetValidator(new CreateOrderItemRequestValidator());
 
-        // -- Note může mít maximálně 500 znaků --
+        // Kontrola délky Note
         RuleFor(x => x.Note)
             .MaximumLength(500)
             .When(x => !string.IsNullOrWhiteSpace(x.Note))
