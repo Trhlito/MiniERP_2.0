@@ -57,6 +57,16 @@ API_STRUCTURE.md - soubor stromové struktury
 
 ---
 
+# Swagger API Overview
+
+## Core Modules
+
+![Swagger Main 1](docs/images/swagger-main-1)
+
+## Finance & Inventory
+
+![Swagger Main 2](docs/images/swagger-main-2)
+---
 # Moduly
 
 ## 1. Order-to-Cash *(Hotovo)*
