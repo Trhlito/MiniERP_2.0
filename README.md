@@ -61,14 +61,20 @@ API_STRUCTURE.md - soubor stromové struktury
 
 ## Core Modules 
 
-![Swagger Main 1](docs/images/swagger-main-1.png)
-
-![Swagger Main 2](docs/images/swagger-main-2.png)
+![Swagger Main 1](docs/images/Swagger_API.png)
 
 
 ## Post Order (example)
 
 ![Swagger_post_orders](docs/images/swagger_post_orders.png)
+
+
+
+## SQL Schéma 
+
+![Swagger Main 1](docs/images/SQL.png)
+
+
 
 
 ---
