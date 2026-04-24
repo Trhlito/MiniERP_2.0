@@ -8,7 +8,7 @@ using MiniERP.API.Validators.Customers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Registrace Service pro dependency injection
+// Registrace služeb pro dependency injection
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -16,6 +16,7 @@ builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // Přidání podpory pro controllery
 builder.Services.AddControllers();

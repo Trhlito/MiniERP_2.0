@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MiniERP.API.DTOs.Orders;
 using MiniERP.API.Services.Interfaces;
+using System.Data;
 using MiniERP.Data;
 using MiniERP.Data.Entities;
 using MiniERP.API.Services.Results;
@@ -341,117 +342,64 @@ public class OrderService : IOrderService
             };
         }
 
-        // Načtení položek objednávky
-        var orderItems = await _db.OrderItems
-            .Where(i => i.OrderId == orderId)
-            .ToListAsync();
+        try
+        {
+            // Databázové připojení z EF Core kontextu
+            var connection = _db.Database.GetDbConnection();
 
-        if (!orderItems.Any())
+            // Otevření připojení při zavřeném stavu
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Vytvoření databázového příkazu pro stored procedure
+            await using var command = connection.CreateCommand();
+            command.CommandText = "dbo.sp_ReserveStockForOrder";
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Parametr ID objednávky
+            var orderIdParameter = command.CreateParameter();
+            orderIdParameter.ParameterName = "@OrderId";
+            orderIdParameter.Value = orderId;
+            command.Parameters.Add(orderIdParameter);
+
+            // Parametr ID skladu
+            var warehouseIdParameter = command.CreateParameter();
+            warehouseIdParameter.ParameterName = "@WarehouseId";
+            warehouseIdParameter.Value = 1;
+            command.Parameters.Add(warehouseIdParameter);
+
+            // Parametr ID uživatele
+            var createdByUserIdParameter = command.CreateParameter();
+            createdByUserIdParameter.ParameterName = "@CreatedByUserId";
+            createdByUserIdParameter.Value = order.CreatedByUserId;
+            command.Parameters.Add(createdByUserIdParameter);
+
+            // Spuštění stored procedure
+            await command.ExecuteNonQueryAsync();
+
+            // Změna stavu objednávky po úspěšné rezervaci
+            order.Status = "Confirmed";
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return new ReserveStockResult
+            {
+                Success = true,
+                Message = "Rezervace skladu byla úspěšně provedena."
+            };
+        }
+        catch (Exception ex)
         {
             return new ReserveStockResult
             {
                 Success = false,
-                ErrorCode = "NO_ITEMS",
-                Message = "Objednávka neobsahuje žádné položky."
+                ErrorCode = "RESERVE_STOCK_FAILED",
+                Message = ex.Message
             };
         }
-
-        // Transakce pro celou operaci rezervace
-        using var transaction = await _db.Database.BeginTransactionAsync();
-
-        // Kontrola dostupnosti všech položek
-        foreach (var item in orderItems)
-        {
-            // Načtení skladu podle ProductId
-            var stock = await _db.Stock
-                .FirstOrDefaultAsync(s => s.ProductId == item.ProductId);
-
-            if (stock == null)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "STOCK_NOT_FOUND",
-                    Message = $"Pro produkt {item.ProductId} neexistuje skladový záznam."
-                };
-            }
-
-            // Výpočet volného množství
-            var availableQuantity = stock.Quantity - stock.ReservedQuantity;
-
-            if (availableQuantity < item.Quantity)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "INSUFFICIENT_STOCK",
-                    Message = $"Nedostatek skladových zásob pro produkt {item.ProductId}."
-                };
-            }
-        }
-
-        // Provedení rezervace a zápis auditního pohybu
-        foreach (var item in orderItems)
-        {
-            var stock = await _db.Stock
-                .FirstOrDefaultAsync(s => s.ProductId == item.ProductId);
-
-            if (stock == null)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "STOCK_NOT_FOUND",
-                    Message = $"Pro produkt {item.ProductId} neexistuje skladový záznam."
-                };
-            }
-
-            // Uložení hodnot před změnou
-            var quantityBefore = stock.Quantity;
-            var reservedBefore = stock.ReservedQuantity;
-
-            // Provedení rezervace
-            stock.ReservedQuantity += item.Quantity;
-            stock.LastUpdatedAt = DateTime.UtcNow;
-
-            // Uložení hodnot po změně
-            var quantityAfter = stock.Quantity;
-            var reservedAfter = stock.ReservedQuantity;
-
-            // Vytvoření auditního záznamu pohybu skladu
-            var stockMovement = new StockMovement
-            {
-                StockId = stock.Id,
-                WarehouseId = stock.WarehouseId,
-                ProductId = stock.ProductId,
-                MovementType = "RESERVE",
-                Quantity = item.Quantity,
-                QuantityBefore = quantityBefore,
-                QuantityAfter = quantityAfter,
-                ReservedBefore = reservedBefore,
-                ReservedAfter = reservedAfter,
-                ReferenceType = "Order",
-                ReferenceId = order.Id,
-                Note = $"Rezervace skladu pro objednávku {order.OrderNumber}",
-                CreatedByUserId = order.CreatedByUserId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.StockMovements.Add(stockMovement);
-        }
-
-        // Změna stavu objednávky na Confirmed
-        order.Status = "Confirmed";
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return new ReserveStockResult
-        {
-            Success = true,
-            Message = "Rezervace skladu byla úspěšně provedena."
-        };
     }
 
     // Uvolnění rezervace skladu pro objednávku
@@ -492,112 +440,63 @@ public class OrderService : IOrderService
             };
         }
 
-        // Načtení položek objednávky
-        var orderItems = await _db.OrderItems
-            .Where(i => i.OrderId == orderId)
-            .ToListAsync();
+        try
+        {
+            // Databázové připojení z EF Core kontextu
+            var connection = _db.Database.GetDbConnection();
 
-        if (!orderItems.Any())
+            // Otevření připojení při zavřeném stavu
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Vytvoření databázového příkazu pro stored procedure
+            await using var command = connection.CreateCommand();
+            command.CommandText = "dbo.sp_ReleaseReservedStockForOrder";
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Parametr ID objednávky
+            var orderIdParameter = command.CreateParameter();
+            orderIdParameter.ParameterName = "@OrderId";
+            orderIdParameter.Value = orderId;
+            command.Parameters.Add(orderIdParameter);
+
+            // Parametr ID skladu
+            var warehouseIdParameter = command.CreateParameter();
+            warehouseIdParameter.ParameterName = "@WarehouseId";
+            warehouseIdParameter.Value = 1;
+            command.Parameters.Add(warehouseIdParameter);
+
+            // Parametr ID uživatele
+            var createdByUserIdParameter = command.CreateParameter();
+            createdByUserIdParameter.ParameterName = "@CreatedByUserId";
+            createdByUserIdParameter.Value = order.CreatedByUserId;
+            command.Parameters.Add(createdByUserIdParameter);
+
+            // Spuštění stored procedure
+            await command.ExecuteNonQueryAsync();
+
+            // Vrácení objednávky do stavu Draft
+            order.Status = "Draft";
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return new ReserveStockResult
+            {
+                Success = true,
+                Message = "Rezervace skladu byla úspěšně uvolněna."
+            };
+        }
+        catch (Exception ex)
         {
             return new ReserveStockResult
             {
                 Success = false,
-                ErrorCode = "NO_ITEMS",
-                Message = "Objednávka neobsahuje žádné položky."
+                ErrorCode = "RELEASE_STOCK_FAILED",
+                Message = ex.Message
             };
         }
-
-        // Transakce pro celou operaci uvolnění
-        using var transaction = await _db.Database.BeginTransactionAsync();
-
-        // Kontrola rezervovaného množství pro uvolnění
-        foreach (var item in orderItems)
-        {
-            var stock = await _db.Stock
-                .FirstOrDefaultAsync(s => s.ProductId == item.ProductId);
-
-            if (stock == null)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "STOCK_NOT_FOUND",
-                    Message = $"Pro produkt {item.ProductId} neexistuje skladový záznam."
-                };
-            }
-
-            if (stock.ReservedQuantity < item.Quantity)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "INVALID_RESERVED_QUANTITY",
-                    Message = $"U produktu {item.ProductId} není dost rezervovaného množství pro uvolnění."
-                };
-            }
-        }
-
-        // Uvolnění rezervace a zápis auditního pohybu
-        foreach (var item in orderItems)
-        {
-            var stock = await _db.Stock
-                .FirstOrDefaultAsync(s => s.ProductId == item.ProductId);
-
-            if (stock == null)
-            {
-                return new ReserveStockResult
-                {
-                    Success = false,
-                    ErrorCode = "STOCK_NOT_FOUND",
-                    Message = $"Pro produkt {item.ProductId} neexistuje skladový záznam."
-                };
-            }
-
-            // Uložení hodnot před změnou
-            var quantityBefore = stock.Quantity;
-            var reservedBefore = stock.ReservedQuantity;
-
-            // Uvolnění rezervace
-            stock.ReservedQuantity -= item.Quantity;
-            stock.LastUpdatedAt = DateTime.UtcNow;
-
-            // Uložení hodnot po změně
-            var quantityAfter = stock.Quantity;
-            var reservedAfter = stock.ReservedQuantity;
-
-            // Vytvoření auditního záznamu pohybu skladu
-            var stockMovement = new StockMovement
-            {
-                StockId = stock.Id,
-                WarehouseId = stock.WarehouseId,
-                ProductId = stock.ProductId,
-                MovementType = "RELEASE",
-                Quantity = item.Quantity,
-                QuantityBefore = quantityBefore,
-                QuantityAfter = quantityAfter,
-                ReservedBefore = reservedBefore,
-                ReservedAfter = reservedAfter,
-                ReferenceType = "Order",
-                ReferenceId = order.Id,
-                Note = $"Uvolnění rezervace skladu pro objednávku {order.OrderNumber}",
-                CreatedByUserId = order.CreatedByUserId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.StockMovements.Add(stockMovement);
-        }
-
-        // Vrácení objednávky do stavu Draft
-        order.Status = "Draft";
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return new ReserveStockResult
-        {
-            Success = true,
-            Message = "Rezervace skladu byla úspěšně uvolněna."
-        };
     }
 }
