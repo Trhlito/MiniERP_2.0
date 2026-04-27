@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using MiniERP.API.DTOs.Invoices;
 using MiniERP.API.Services.Interfaces;
@@ -84,10 +85,10 @@ public class InvoiceService : IInvoiceService
             .FirstOrDefaultAsync();
     }
 
-    // Vytvoření faktury z objednávky
+    // Vytvoření faktury z objednávky //
     public async Task<CreateInvoiceFromOrderResult> CreateFromOrderAsync(int orderId)
     {
-        // Načtení objednávky
+        // Načtení objednávky //
         var order = await _db.Orders
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -102,7 +103,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // Povolení pouze pro objednávku ve stavu Confirmed
+        // Kontrola stavu Draft //
         if (order.Status == "Draft")
         {
             return new CreateInvoiceFromOrderResult
@@ -113,6 +114,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
+        // Kontrola povoleného stavu objednávky //
         if (order.Status != "Confirmed")
         {
             return new CreateInvoiceFromOrderResult
@@ -123,101 +125,67 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // Kontrola existující faktury pro objednávku
-        var existingInvoice = await _db.Invoices
-            .AsNoTracking()
-            .FirstOrDefaultAsync(i => i.OrderId == orderId);
+        try
+        {
+            // Databázové připojení z EF Core kontextu //
+            var connection = _db.Database.GetDbConnection();
 
-        if (existingInvoice != null)
+            // Otevření připojení při zavřeném stavu //
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Vytvoření databázového příkazu pro stored procedure //
+            await using var command = connection.CreateCommand();
+            command.CommandText = "dbo.sp_CreateInvoiceFromOrder";
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Parametr ID objednávky //
+            var orderIdParameter = command.CreateParameter();
+            orderIdParameter.ParameterName = "@OrderId";
+            orderIdParameter.Value = orderId;
+            command.Parameters.Add(orderIdParameter);
+
+            // Parametr ID uživatele //
+            var createdByUserIdParameter = command.CreateParameter();
+            createdByUserIdParameter.ParameterName = "@CreatedByUserId";
+            createdByUserIdParameter.Value = order.CreatedByUserId;
+            command.Parameters.Add(createdByUserIdParameter);
+
+            // Spuštění procedury a načtení výsledku //
+            await using var reader = await command.ExecuteReaderAsync();
+
+            // Kontrola vráceného výsledku //
+            if (!await reader.ReadAsync())
+            {
+                return new CreateInvoiceFromOrderResult
+                {
+                    Success = false,
+                    ErrorCode = "INVOICE_CREATE_FAILED",
+                    Message = "Procedura nevrátila výsledek vytvořené faktury."
+                };
+            }
+
+            // Načtení ID faktury z výsledku procedury //
+            var invoiceIdOrdinal = reader.GetOrdinal("InvoiceId");
+            var invoiceId = reader.GetInt32(invoiceIdOrdinal);
+
+            return new CreateInvoiceFromOrderResult
+            {
+                Success = true,
+                InvoiceId = invoiceId,
+                Message = "Faktura byla úspěšně vytvořena z objednávky."
+            };
+        }
+        catch (Exception ex)
         {
             return new CreateInvoiceFromOrderResult
             {
                 Success = false,
-                ErrorCode = "INVOICE_ALREADY_EXISTS",
-                Message = $"Pro objednávku {orderId} už faktura existuje."
+                ErrorCode = "CREATE_INVOICE_FAILED",
+                Message = ex.Message
             };
         }
-
-        // Načtení položek objednávky
-        var orderItems = await _db.OrderItems
-            .AsNoTracking()
-            .Where(i => i.OrderId == orderId)
-            .ToListAsync();
-
-        if (!orderItems.Any())
-        {
-            return new CreateInvoiceFromOrderResult
-            {
-                Success = false,
-                ErrorCode = "NO_ORDER_ITEMS",
-                Message = "Objednávka neobsahuje žádné položky."
-            };
-        }
-
-        // Kontrola kladné celkové částky objednávky
-        if (order.TotalAmount <= 0)
-        {
-            return new CreateInvoiceFromOrderResult
-            {
-                Success = false,
-                ErrorCode = "INVALID_ORDER_TOTAL",
-                Message = "Fakturu nelze vytvořit z objednávky s nulovou nebo zápornou částkou."
-            };
-        }
-
-        // Vygenerování čísla faktury
-        var invoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{orderId}";
-
-        // Vytvoření hlavičky faktury
-        var invoice = new Invoice
-        {
-            InvoiceNumber = invoiceNumber,
-            OrderId = order.Id,
-            CustomerId = order.CustomerId,
-            IssueDate = DateTime.UtcNow,
-            DueDate = DateTime.UtcNow.AddDays(14),
-            PaidDate = null,
-            Status = "Issued",
-            Subtotal = order.Subtotal,
-            VatTotal = order.VatTotal,
-            TotalAmount = order.TotalAmount,
-            Currency = order.Currency,
-            Note = $"Faktura vytvořená z objednávky {order.OrderNumber}",
-            CreatedByUserId = order.CreatedByUserId,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null
-        };
-
-        _db.Invoices.Add(invoice);
-        await _db.SaveChangesAsync();
-
-        // Přenos položek objednávky do faktury
-        foreach (var item in orderItems)
-        {
-            var invoiceItem = new InvoiceItem
-            {
-                InvoiceId = invoice.Id,
-                ProductId = item.ProductId,
-                ItemName = item.ItemName,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                VatRate = item.VatRate,
-                DiscountPercent = item.DiscountPercent,
-                LineSubtotal = item.LineSubtotal,
-                LineVatAmount = item.LineVatAmount,
-                LineTotal = item.LineTotal
-            };
-
-            _db.InvoiceItems.Add(invoiceItem);
-        }
-
-        await _db.SaveChangesAsync();
-
-        return new CreateInvoiceFromOrderResult
-        {
-            Success = true,
-            InvoiceId = invoice.Id,
-            Message = "Faktura byla úspěšně vytvořena z objednávky."
-        };
     }
 }
