@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniERP.API.DTOs.Customers;
 using MiniERP.API.Services.Interfaces;
@@ -7,6 +8,7 @@ namespace MiniERP.API.Controllers;
 // Controller pro práci se zákazníky
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CustomersController : ControllerBase
 {
     // Service vrstva pro zákazníky
@@ -40,7 +42,8 @@ public class CustomersController : ControllerBase
         return Ok(customer);
     }
 
-    // Vytvoření nového zákazníka
+    // Vytvoření zákazníka
+    [Authorize(Roles = "Admin,Manager")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCustomerRequest request)
     {
@@ -69,6 +72,7 @@ public class CustomersController : ControllerBase
     }
 
     // Úprava existujícího zákazníka
+    [Authorize(Roles = "Admin,Manager")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCustomerRequest request)
     {
@@ -98,6 +102,7 @@ public class CustomersController : ControllerBase
     }
 
     // Smazání zákazníka podle ID
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
