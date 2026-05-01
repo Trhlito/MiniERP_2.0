@@ -3,12 +3,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro faktury
 [ApiController]
 [Route("api/[controller]")]
 public class InvoicesController : ControllerBase
 {
-    // Service vrstva pro faktury
     private readonly IInvoiceService _invoiceService;
 
     public InvoicesController(IInvoiceService invoiceService)

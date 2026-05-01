@@ -2,7 +2,7 @@ using MiniERP.API.DTOs.Users;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// Rozhraní definuje operace pro správu uživatelů
+// Rozhraní na operace pro správu uživatelů
 public interface IUserService
 {
     // Metoda vrátí seznam uživatelů

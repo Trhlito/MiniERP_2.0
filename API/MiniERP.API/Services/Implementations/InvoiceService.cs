@@ -8,10 +8,8 @@ using MiniERP.API.Services.Results;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro faktury
 public class InvoiceService : IInvoiceService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public InvoiceService(ApplicationDbContext db)
@@ -85,10 +83,10 @@ public class InvoiceService : IInvoiceService
             .FirstOrDefaultAsync();
     }
 
-    // Vytvoření faktury z objednávky //
+    // Vytvoření faktury z objednávky 
     public async Task<CreateInvoiceFromOrderResult> CreateFromOrderAsync(int orderId)
     {
-        // Načtení objednávky //
+        // Načtení objednávky 
         var order = await _db.Orders
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -103,7 +101,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // Kontrola stavu Draft //
+        // Kontrola stavu Draft 
         if (order.Status == "Draft")
         {
             return new CreateInvoiceFromOrderResult
@@ -114,7 +112,7 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        // Kontrola povoleného stavu objednávky //
+        // Kontrola povoleného stavu objednávky  ... (Confirmerd)
         if (order.Status != "Confirmed")
         {
             return new CreateInvoiceFromOrderResult
@@ -127,36 +125,36 @@ public class InvoiceService : IInvoiceService
 
         try
         {
-            // Databázové připojení z EF Core kontextu //
+            // Databázové připojení z EF Core kontextu 
             var connection = _db.Database.GetDbConnection();
 
-            // Otevření připojení při zavřeném stavu //
+            // Otevření připojení při zavřeném stavu 
             if (connection.State != ConnectionState.Open)
             {
                 await connection.OpenAsync();
             }
 
-            // Vytvoření databázového příkazu pro stored procedure //
+            // Vytvoření databázového příkazu pro proceduru 
             await using var command = connection.CreateCommand();
             command.CommandText = "dbo.sp_CreateInvoiceFromOrder";
             command.CommandType = CommandType.StoredProcedure;
 
-            // Parametr ID objednávky //
+            // Parametr ID objednávky 
             var orderIdParameter = command.CreateParameter();
             orderIdParameter.ParameterName = "@OrderId";
             orderIdParameter.Value = orderId;
             command.Parameters.Add(orderIdParameter);
 
-            // Parametr ID uživatele //
+            // Parametr ID uživatele 
             var createdByUserIdParameter = command.CreateParameter();
             createdByUserIdParameter.ParameterName = "@CreatedByUserId";
             createdByUserIdParameter.Value = order.CreatedByUserId;
             command.Parameters.Add(createdByUserIdParameter);
 
-            // Spuštění procedury a načtení výsledku //
+            // Spuštění procedury a načtení výsledku 
             await using var reader = await command.ExecuteReaderAsync();
 
-            // Kontrola vráceného výsledku //
+            // Kontrola daného vráceného výsledku 
             if (!await reader.ReadAsync())
             {
                 return new CreateInvoiceFromOrderResult
@@ -167,7 +165,7 @@ public class InvoiceService : IInvoiceService
                 };
             }
 
-            // Načtení ID faktury z výsledku procedury //
+            // Načtení ID faktury z výsledku procedury 
             var invoiceIdOrdinal = reader.GetOrdinal("InvoiceId");
             var invoiceId = reader.GetInt32(invoiceIdOrdinal);
 

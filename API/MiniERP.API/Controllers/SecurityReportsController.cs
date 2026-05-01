@@ -5,85 +5,72 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller zajišťuje auth reporty pro administrátora
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/security-reports")]
 [Authorize(Roles = "Admin")]
-public class AuthReportsController : ControllerBase
+public class SecurityReportsController : ControllerBase
 {
-    // Služba pro auth reporty
-    private readonly IAuthReportService _authReportService;
+    private readonly ISecurityReportService _securityReportService;
 
-    // Konstruktor controlleru
-    public AuthReportsController(IAuthReportService authReportService)
+    public SecurityReportsController(ISecurityReportService securityReportService)
     {
-        _authReportService = authReportService;
+        _securityReportService = securityReportService;
     }
 
-    // Endpoint vrátí souhrn auth audit událostí
+    // Souhrn autentizačních událostí za zadané období
     [HttpGet("audit-summary")]
     public async Task<ActionResult<List<AuthAuditSummaryDto>>> GetAuditSummary(
         [FromQuery] DateTime? fromDate,
         [FromQuery] DateTime? toDate)
     {
-        // Načtení souhrnu auth auditu
-        var result = await _authReportService.GetAuthAuditSummaryAsync(
+        var result = await _securityReportService.GetAuthAuditSummaryAsync(
             fromDate,
             toDate);
 
-        // Vrácení výsledku
         return Ok(result);
     }
 
-    // Endpoint vrátí bezpečnostní audit konkrétního uživatele
+    // Bezpečnostní audit konkrétního uživatele
     [HttpGet("users/{id:int}/security-audit")]
     public async Task<ActionResult<List<UserSecurityAuditDto>>> GetUserSecurityAudit(int id)
     {
-        // Načtení bezpečnostního auditu uživatele
-        var result = await _authReportService.GetUserSecurityAuditAsync(id);
+        var result = await _securityReportService.GetUserSecurityAuditAsync(id);
 
-        // Vrácení výsledku
         return Ok(result);
     }
 
-    // Endpoint vrátí neúspěšné pokusy o přihlášení
+    // Přehled neúspěšných pokusů o přihlášení
     [HttpGet("failed-logins")]
     public async Task<ActionResult<List<FailedLoginDto>>> GetFailedLogins(
         [FromQuery] DateTime? fromDate,
         [FromQuery] DateTime? toDate)
     {
-        // Načtení neúspěšných přihlášení
-        var result = await _authReportService.GetFailedLoginsAsync(
+        var result = await _securityReportService.GetFailedLoginsAsync(
             fromDate,
             toDate);
 
-        // Vrácení výsledku
         return Ok(result);
     }
 
-    // Endpoint zneplatní refresh tokeny uživatele
+    // Zneplatnění aktivních refresh tokenů konkrétního uživatele
     [HttpPost("users/{id:int}/revoke-refresh-tokens")]
     public async Task<ActionResult<ProcedureResultDto>> RevokeUserRefreshTokens(int id)
     {
-        // Zneplatnění refresh tokenů uživatele
-        var result = await _authReportService.RevokeUserRefreshTokensAsync(
+        var result = await _securityReportService.RevokeUserRefreshTokensAsync(
             id,
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        // Vrácení výsledku
         return Ok(result);
     }
 
-    // Endpoint smaže staré expirované refresh tokeny
+    // Údržba expirovaných a zneplatněných refresh tokenů
     [HttpPost("cleanup-expired-refresh-tokens")]
     public async Task<ActionResult<ProcedureResultDto>> CleanupExpiredRefreshTokens(
         [FromQuery] int olderThanDays = 30)
     {
-        // Smazání starých expirovaných refresh tokenů
-        var result = await _authReportService.CleanupExpiredRefreshTokensAsync(
+        var result = await _securityReportService.CleanupExpiredRefreshTokensAsync(
             olderThanDays);
 
-        // Vrácení výsledku
         return Ok(result);
     }
 }

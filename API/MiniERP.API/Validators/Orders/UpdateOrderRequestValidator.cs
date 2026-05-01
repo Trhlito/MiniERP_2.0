@@ -13,13 +13,13 @@ public class UpdateOrderRequestValidator : AbstractValidator<UpdateOrderRequest>
             .Must(status => new[] { "Draft", "Confirmed", "Completed", "Cancelled" }.Contains(status))
             .WithMessage("Status musí být: Draft, Confirmed, Completed nebo Cancelled.");
 
-        // Kontrola povinné Currency
+        // povinná měna
         RuleFor(x => x.Currency)
             .NotEmpty()
             .MaximumLength(10)
             .WithMessage("Currency je povinná a může mít maximálně 10 znaků.");
 
-        // Kontrola délky Note
+        // kontrola délky poznámky
         RuleFor(x => x.Note)
             .MaximumLength(500)
             .When(x => !string.IsNullOrWhiteSpace(x.Note))

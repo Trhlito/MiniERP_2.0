@@ -5,10 +5,8 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro auditní pohyby skladu
 public class StockMovementService : IStockMovementService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public StockMovementService(ApplicationDbContext db)

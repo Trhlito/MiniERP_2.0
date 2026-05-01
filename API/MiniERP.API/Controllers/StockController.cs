@@ -4,12 +4,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro sklad
 [ApiController]
 [Route("api/[controller]")]
 public class StockController : ControllerBase
 {
-    // Service vrstva pro sklad
     private readonly IStockService _stockService;
 
     public StockController(IStockService stockService)
@@ -43,7 +41,6 @@ public class StockController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateStockRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -61,12 +58,11 @@ public class StockController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateStockRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
-
+    
         var updated = await _stockService.UpdateAsync(id, request);
 
         if (!updated)

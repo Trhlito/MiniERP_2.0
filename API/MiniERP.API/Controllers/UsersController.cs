@@ -5,16 +5,13 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller zajišťuje správu uživatelů
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {
-    // Služba pro správu uživatelů
     private readonly IUserService _userService;
 
-    // Konstruktor controlleru
     public UsersController(IUserService userService)
     {
         _userService = userService;

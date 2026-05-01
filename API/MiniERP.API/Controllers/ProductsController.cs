@@ -4,12 +4,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro produkty
 [ApiController]
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    // Service vrstva pro produkty
     private readonly IProductService _productService;
 
     public ProductsController(IProductService productService)
@@ -29,14 +27,12 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
 
         var newProductId = await _productService.CreateAsync(request);
-
         return CreatedAtAction(
             nameof(GetAll),
             new { id = newProductId },
@@ -61,7 +57,6 @@ public class ProductsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);

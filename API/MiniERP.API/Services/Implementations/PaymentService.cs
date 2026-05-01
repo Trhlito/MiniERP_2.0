@@ -7,10 +7,8 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro platby
 public class PaymentService : IPaymentService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public PaymentService(ApplicationDbContext db)
@@ -57,10 +55,10 @@ public class PaymentService : IPaymentService
             .FirstOrDefaultAsync();
     }
 
-    // Vytvoření nové platby //
+    // Vytvoření nové platby 
     public async Task<int> CreateAsync(CreatePaymentRequest request)
     {
-        // Načtení faktury //
+        // Načtení faktury 
         var invoice = await _db.Invoices
             .AsNoTracking()
             .FirstOrDefaultAsync(i => i.Id == request.InvoiceId);
@@ -70,45 +68,45 @@ public class PaymentService : IPaymentService
             throw new Exception("Faktura neexistuje.");
         }
 
-        // Databázové připojení z EF Core kontextu //
+        // Databázové připojení z EF Core
         var connection = _db.Database.GetDbConnection();
 
-        // Otevření připojení při zavřeném stavu //
+        // Otevření připojení při zavřeném stavu
         if (connection.State != ConnectionState.Open)
         {
             await connection.OpenAsync();
         }
 
-        // Vytvoření databázového příkazu pro stored procedure //
+        // Vytvoření databázového příkazu pro procedury
         await using var command = connection.CreateCommand();
         command.CommandText = "dbo.sp_RegisterPaymentForInvoice";
         command.CommandType = CommandType.StoredProcedure;
 
-        // Parametr ID faktury //
+        // Parametr ID faktury
         var invoiceIdParameter = command.CreateParameter();
         invoiceIdParameter.ParameterName = "@InvoiceId";
         invoiceIdParameter.Value = request.InvoiceId;
         command.Parameters.Add(invoiceIdParameter);
 
-        // Parametr částky //
+        // Parametr částky
         var amountParameter = command.CreateParameter();
         amountParameter.ParameterName = "@Amount";
         amountParameter.Value = request.Amount;
         command.Parameters.Add(amountParameter);
 
-        // Parametr data platby //
+        // Parametr data platby
         var paymentDateParameter = command.CreateParameter();
         paymentDateParameter.ParameterName = "@PaymentDate";
         paymentDateParameter.Value = request.PaymentDate;
         command.Parameters.Add(paymentDateParameter);
 
-        // Parametr metody platby //
+        // Parametr metody platby
         var paymentMethodParameter = command.CreateParameter();
         paymentMethodParameter.ParameterName = "@PaymentMethod";
         paymentMethodParameter.Value = request.PaymentMethod;
         command.Parameters.Add(paymentMethodParameter);
 
-        // Parametr referenčního čísla //
+        // Parametr referenčního čísla
         var referenceNumberParameter = command.CreateParameter();
         referenceNumberParameter.ParameterName = "@ReferenceNumber";
         referenceNumberParameter.Value = string.IsNullOrWhiteSpace(request.ReferenceNumber)
@@ -116,7 +114,7 @@ public class PaymentService : IPaymentService
             : request.ReferenceNumber;
         command.Parameters.Add(referenceNumberParameter);
 
-        // Parametr poznámky //
+        // Parametr poznámky
             var noteParameter = command.CreateParameter();
         noteParameter.ParameterName = "@Note";
         noteParameter.Value = string.IsNullOrWhiteSpace(request.Note)
@@ -124,22 +122,22 @@ public class PaymentService : IPaymentService
             : request.Note;
         command.Parameters.Add(noteParameter);
 
-        // Parametr ID uživatele //
+        // Parametr ID uživatele
         var createdByUserIdParameter = command.CreateParameter();
         createdByUserIdParameter.ParameterName = "@CreatedByUserId";
         createdByUserIdParameter.Value = request.CreatedByUserId;
         command.Parameters.Add(createdByUserIdParameter);
 
-        // Spuštění procedury a načtení výsledku //
+        // Spuštění procedury a načtení výsledku
         await using var reader = await command.ExecuteReaderAsync();
 
-        // Kontrola vráceného výsledku //
+        // Kontrola vráceného výsledku
         if (!await reader.ReadAsync())
         {
             throw new Exception("Procedura nevrátila výsledek vytvořené platby.");
         }
 
-        // Načtení ID platby z výsledku procedury //
+        // Načtení ID platby z výsledku procedury
         var paymentIdOrdinal = reader.GetOrdinal("PaymentId");
         var paymentId = reader.GetInt32(paymentIdOrdinal);
 

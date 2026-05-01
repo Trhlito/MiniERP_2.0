@@ -8,17 +8,17 @@ public class UpdateStockRequestValidator : AbstractValidator<UpdateStockRequest>
 {
     public UpdateStockRequestValidator()
     {
-        // Kontrola nezáporné hodnoty Quantity
+        // Množství nesmí být záporné
         RuleFor(x => x.Quantity)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Quantity nesmí být záporné.");
 
-        // Kontrola nezáporné hodnoty ReservedQuantity
+        // Rezervované množství nesmí být záporné
         RuleFor(x => x.ReservedQuantity)
             .GreaterThanOrEqualTo(0)
             .WithMessage("ReservedQuantity nesmí být záporné.");
 
-        // Kontrola ReservedQuantity vůči Quantity
+        // Rezervace nesmí být vyšší než celkové množství na skladě
         RuleFor(x => x)
             .Must(x => x.ReservedQuantity <= x.Quantity)
             .WithMessage("ReservedQuantity nesmí být větší než Quantity.");

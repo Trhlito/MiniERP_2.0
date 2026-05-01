@@ -3,7 +3,7 @@ using MiniERP.Data.Entities.Auth;
 
 namespace MiniERP.API.Seed;
 
-// Seeder připravuje základní Identity data
+// Seeder připraví základní role a výchozí admin účet pro první spuštění.
 public static class IdentitySeeder
 {
     // Metoda vytvoří základní role a výchozí admin účet

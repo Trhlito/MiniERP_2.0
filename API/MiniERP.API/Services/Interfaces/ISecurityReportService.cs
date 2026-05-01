@@ -2,27 +2,27 @@ using MiniERP.API.DTOs.Auth.Reports;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// Rozhraní definuje reporty pro autentizaci
-public interface IAuthReportService
+// Rozhraní na bezpečnostní reporty a administrativní operace nad autentizací
+public interface ISecurityReportService
 {
-    // Metoda vrátí souhrn auth audit událostí
+    // Vrací souhrn autentizačních událostí za zadané období
     Task<List<AuthAuditSummaryDto>> GetAuthAuditSummaryAsync(
         DateTime? fromDate,
         DateTime? toDate);
     
-    // Metoda vrátí bezpečnostní audit konkrétního uživatele
+    // Vrací bezpečnostní historii konkrétního uživatele
     Task<List<UserSecurityAuditDto>> GetUserSecurityAuditAsync(int userId);
 
-    // Metoda vrátí neúspěšné pokusy o přihlášení
+    // Vrací neúspěšné pokusy o přihlášení za zadané období
     Task<List<FailedLoginDto>> GetFailedLoginsAsync(
         DateTime? fromDate,
         DateTime? toDate);
 
-    // Metoda zneplatní refresh tokeny uživatele
+    // Zneplatní aktivní refresh tokeny konkrétního uživatele
     Task<ProcedureResultDto> RevokeUserRefreshTokensAsync(
         int userId,
         string? revokedByIp);
 
-    // Metoda smaže staré expirované refresh tokeny
+    // Provede údržbu a odstraní expirované refresh tokeny
     Task<ProcedureResultDto> CleanupExpiredRefreshTokensAsync(int olderThanDays);
 }

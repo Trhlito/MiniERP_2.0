@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// Rozhraní definuje autentizační operace
+// Rozhraní pro autentizační operace
 public interface IAuthService
 {
     // Metoda přihlásí uživatele a vrátí tokeny

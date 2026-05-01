@@ -2,7 +2,7 @@ using MiniERP.API.DTOs.Products;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// Rozhraní pro produkty
+// rozhraní pro produkty
 public interface IProductService
 {
     // Načtení seznamu produktů

@@ -5,10 +5,8 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro sklad
 public class StockService : IStockService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public StockService(ApplicationDbContext db)

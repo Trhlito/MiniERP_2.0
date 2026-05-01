@@ -4,12 +4,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro platby
 [ApiController]
 [Route("api/[controller]")]
 public class PaymentsController : ControllerBase
 {
-    // Service vrstva pro platby
     private readonly IPaymentService _paymentService;
 
     public PaymentsController(IPaymentService paymentService)
@@ -43,7 +41,6 @@ public class PaymentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePaymentRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -51,10 +48,7 @@ public class PaymentsController : ControllerBase
 
         try
         {
-            // Vytvoření nové platby
             var newPaymentId = await _paymentService.CreateAsync(request);
-
-            // Vrácení Created odpovědi s odkazem na detail
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = newPaymentId },

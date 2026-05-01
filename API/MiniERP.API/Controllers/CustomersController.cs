@@ -5,22 +5,20 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro práci se zákazníky
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
 public class CustomersController : ControllerBase
 {
-    // Service vrstva pro zákazníky
     private readonly ICustomerService _customerService;
 
-    // Konstruktor pro CustomerService
     public CustomersController(ICustomerService customerService)
     {
         _customerService = customerService;
     }
 
     // Načtení všech zákazníků
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -29,6 +27,7 @@ public class CustomersController : ControllerBase
     }
 
     // Načtení zákazníka podle ID
+    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -76,7 +75,6 @@ public class CustomersController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCustomerRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
@@ -84,7 +82,6 @@ public class CustomersController : ControllerBase
 
         try
         {
-            // Pokus o update zákazníka
             var updated = await _customerService.UpdateAsync(id, request);
 
             if (!updated)

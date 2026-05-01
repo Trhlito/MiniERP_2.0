@@ -6,13 +6,9 @@ using MiniERP.Data.Entities;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro práci se zákazníky
 public class CustomerService : ICustomerService
 {
-    // Databázový kontext pro tabulku Customers
     private readonly ApplicationDbContext _db;
-
-    // Konstruktor pro databázový kontext
     public CustomerService(ApplicationDbContext db)
     {
         _db = db;

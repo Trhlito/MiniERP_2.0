@@ -4,12 +4,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro objednávky
 [ApiController]
 [Route("api/[controller]")]
 public class OrdersController : ControllerBase
 {
-    // Service vrstva pro objednávky
     private readonly IOrderService _orderService;
 
     public OrdersController(IOrderService orderService)
@@ -80,7 +78,6 @@ public class OrdersController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateOrderRequest request)
     {
-        // Vrácení validačních chyb
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);

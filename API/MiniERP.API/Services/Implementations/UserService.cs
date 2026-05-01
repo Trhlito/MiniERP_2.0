@@ -6,13 +6,10 @@ using MiniERP.Data.Entities.Auth;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Služba zajišťuje správu uživatelů přes ASP.NET Identity
 public class UserService : IUserService
 {
-    // Správa uživatelů přes ASP.NET Identity
+    // Správa uživatelů a rolí přes ASP.NET Identity
     private readonly UserManager<ApplicationUser> _userManager;
-
-    // Správa rolí přes ASP.NET Identity
     private readonly RoleManager<ApplicationRole> _roleManager;
 
     // Konstruktor služby
@@ -24,10 +21,10 @@ public class UserService : IUserService
         _roleManager = roleManager;
     }
 
-    // Metoda vrátí seznam uživatelů
+    // Seznam uživatelů
     public async Task<List<UserListItemDto>> GetAllAsync()
     {
-        // Načtení uživatelů z Identity
+        // Načtu uživatele z Identity
         var users = await _userManager.Users
             .OrderBy(x => x.UserName)
             .ToListAsync();
@@ -38,10 +35,8 @@ public class UserService : IUserService
         // Doplnění rolí ke každému uživateli
         foreach (var user in users)
         {
-            // Načtení rolí uživatele
             var roles = await _userManager.GetRolesAsync(user);
 
-            // Přidání uživatele do výsledku
             result.Add(new UserListItemDto
             {
                 Id = user.Id,
@@ -53,27 +48,21 @@ public class UserService : IUserService
                 Roles = roles.ToList()
             });
         }
-
-        // Vrácení seznamu uživatelů
         return result;
     }
 
-    // Metoda vrátí detail uživatele podle id
+    // Detail uživatele podle id
     public async Task<UserDetailDto?> GetByIdAsync(int id)
     {
-        // Vyhledání uživatele podle id
+        // Vyhledání dle id + Ošetření null - uživatele
         var user = await _userManager.FindByIdAsync(id.ToString());
-
-        // Ošetření nenalezeného uživatele
         if (user is null)
         {
             return null;
         }
 
-        // Načtení rolí uživatele
+        // Načteme role
         var roles = await _userManager.GetRolesAsync(user);
-
-        // Vrácení detailu uživatele
         return new UserDetailDto
         {
             Id = user.Id,
@@ -88,10 +77,9 @@ public class UserService : IUserService
         };
     }
 
-    // Metoda vytvoří nového uživatele
+    // Vytvoření nového uživatele a příprava nové už. entity
     public async Task<UserDetailDto> CreateAsync(CreateUserRequest request)
     {
-        // Příprava nové uživatelské entity
         var user = new ApplicationUser
         {
             UserName = request.UserName,
@@ -103,51 +91,44 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow
         };
 
-        // Vytvoření uživatele přes ASP.NET Identity
-        var createResult = await _userManager.CreateAsync(user, request.Password);
 
-        // Ošetření chyby při vytvoření uživatele
+        // Vytvoření uživatele přes ASP.NET Identity + ošwtření chyby
+        var createResult = await _userManager.CreateAsync(user, request.Password);
         if (!createResult.Succeeded)
         {
             var errors = string.Join("; ", createResult.Errors.Select(x => x.Description));
             throw new InvalidOperationException(errors);
         }
 
-        // Přiřazení rolí, pokud byly zadány
+
+        // Přiřazení rolí, pokud byly zadány + kontrola zda existují všechny role
         if (request.Roles.Any())
         {
-            // Kontrola existence všech rolí
             foreach (var role in request.Roles)
             {
-                // Ošetření neexistující role
                 if (!await _roleManager.RoleExistsAsync(role))
                 {
                     throw new InvalidOperationException($"Role '{role}' does not exist.");
                 }
             }
 
-            // Přiřazení rolí uživateli
-            var roleResult = await _userManager.AddToRolesAsync(user, request.Roles);
 
-            // Ošetření chyby při přiřazení rolí
+            // Přiřazení rolí uživateli + ošetření chyby při přiřazení
+            var roleResult = await _userManager.AddToRolesAsync(user, request.Roles);
             if (!roleResult.Succeeded)
             {
                 var errors = string.Join("; ", roleResult.Errors.Select(x => x.Description));
                 throw new InvalidOperationException(errors);
             }
         }
-
-        // Vrácení vytvořeného uživatele
         return (await GetByIdAsync(user.Id))!;
     }
 
-    // Metoda upraví existujícího uživatele
+    // Upravení existujícího uživatele
     public async Task<bool> UpdateAsync(int id, UpdateUserRequest request)
     {
-        // Vyhledání uživatele podle id
+        // Vyhledání uživatele podle id + ošetření null zase
         var user = await _userManager.FindByIdAsync(id.ToString());
-
-        // Ošetření nenalezeného uživatele
         if (user is null)
         {
             return false;
@@ -164,58 +145,46 @@ public class UserService : IUserService
         // Uložení změn přes ASP.NET Identity
         var result = await _userManager.UpdateAsync(user);
 
-        // Vrácení výsledku
         return result.Succeeded;
     }
 
-    // Metoda upraví role uživatele
+    // Úprava role uživatele
     public async Task<bool> UpdateRolesAsync(int id, UpdateUserRolesRequest request)
     {
-        // Vyhledání uživatele podle id
         var user = await _userManager.FindByIdAsync(id.ToString());
-
-        // Ošetření nenalezeného uživatele
         if (user is null)
         {
             return false;
         }
 
-        // Kontrola existence všech rolí
+
         foreach (var role in request.Roles)
         {
-            // Ošetření neexistující role
             if (!await _roleManager.RoleExistsAsync(role))
             {
                 throw new InvalidOperationException($"Role '{role}' does not exist.");
             }
         }
 
-        // Načtení aktuálních rolí
+        // Načtení a odebrání aktuálních rolí , ošetření chyby
         var currentRoles = await _userManager.GetRolesAsync(user);
-
-        // Odebrání aktuálních rolí
         var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
-        // Ošetření chyby při odebrání rolí
         if (!removeResult.Succeeded)
         {
             return false;
         }
 
+
         // Přidání nových rolí
         var addResult = await _userManager.AddToRolesAsync(user, request.Roles);
-
-        // Vrácení výsledku
         return addResult.Succeeded;
     }
 
     // Metoda nastaví nové heslo uživatele
     public async Task<bool> ResetPasswordAsync(int id, ResetPasswordRequest request)
     {
-        // Vyhledání uživatele podle id
+        // Vyhledání + ošetření
         var user = await _userManager.FindByIdAsync(id.ToString());
-
-        // Ošetření nenalezeného uživatele
         if (user is null)
         {
             return false;
@@ -230,7 +199,6 @@ public class UserService : IUserService
             resetToken,
             request.NewPassword);
 
-        // Vrácení výsledku
         return result.Succeeded;
     }
 }

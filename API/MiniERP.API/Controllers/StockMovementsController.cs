@@ -3,12 +3,10 @@ using MiniERP.API.Services.Interfaces;
 
 namespace MiniERP.API.Controllers;
 
-// Controller pro auditní pohyby skladu
 [ApiController]
 [Route("api/[controller]")]
 public class StockMovementsController : ControllerBase
 {
-    // Service vrstva pro auditní pohyby skladu
     private readonly IStockMovementService _stockMovementService;
 
     public StockMovementsController(IStockMovementService stockMovementService)

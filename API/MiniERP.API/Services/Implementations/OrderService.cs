@@ -8,10 +8,8 @@ using MiniERP.API.Services.Results;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro objednávky
 public class OrderService : IOrderService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public OrderService(ApplicationDbContext db)
@@ -163,7 +161,7 @@ public class OrderService : IOrderService
             var lineSubtotal = item.Quantity * item.UnitPrice;
             lineSubtotal = lineSubtotal * (1 - (discountPercent / 100m));
 
-            // Výpočet DPH řádku
+            // Výpočet DPH 
             var lineVatAmount = lineSubtotal * (item.VatRate / 100m);
 
             // Výpočet celkové částky řádku
@@ -189,8 +187,6 @@ public class OrderService : IOrderService
             vatTotal += lineVatAmount;
             totalAmount += lineTotal;
         }
-
-        // Uložení položek objednávky
         await _db.SaveChangesAsync();
 
         // Doplnění součtů do hlavičky objednávky
@@ -241,7 +237,7 @@ public class OrderService : IOrderService
             return true;
         }
 
-        // Běžný update pro Draft objednávku
+        // Update Draf Objednávky
         if (order.Status == "Draft")
         {
             order.RequiredDate = request.RequiredDate;
@@ -262,11 +258,11 @@ public class OrderService : IOrderService
     // Smazání objednávky podle ID včetně položek
     public async Task<bool> DeleteAsync(int id)
     {
-        // Načtení objednávky
+        // Načtení
         var order = await _db.Orders
             .FirstOrDefaultAsync(o => o.Id == id);
 
-        // Kontrola existence objednávky
+        // Kontrola existence
         if (order == null)
         {
             return false;
@@ -279,7 +275,7 @@ public class OrderService : IOrderService
                 $"Objednávku {order.OrderNumber} nelze smazat, protože je ve stavu Confirmed.");
         }
 
-        // Kontrola existence faktury k objednávce
+        // Kontrola existence faktury
         var hasInvoice = await _db.Invoices
             .AsNoTracking()
             .AnyAsync(i => i.OrderId == order.Id);
@@ -290,12 +286,12 @@ public class OrderService : IOrderService
                 $"Objednávku {order.OrderNumber} nelze smazat, protože k ní existuje faktura.");
         }
 
-        // Načtení položek objednávky
+        // Načtení položek
         var items = await _db.OrderItems
             .Where(i => i.OrderId == id)
             .ToListAsync();
 
-        // Smazání položek a hlavičky objednávky
+        // Smazání položek a hlavičky
         _db.OrderItems.RemoveRange(items);
         _db.Orders.Remove(order);
 
@@ -304,7 +300,7 @@ public class OrderService : IOrderService
         return true;
     }
 
-    // Rezervace skladu pro objednávku
+    // Rezervace skladu
     public async Task<ReserveStockResult> ReserveStockAsync(int orderId)
     {
         // Načtení objednávky
@@ -320,7 +316,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // Kontrola existující rezervace skladu
+        // Kontrola existující rezervace
         if (order.Status == "Confirmed")
         {
             return new ReserveStockResult
@@ -331,7 +327,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // Povolení rezervace pouze pro Draft
+        // Povolení rezervace ale pouze pro Draft
         if (order.Status != "Draft")
         {
             return new ReserveStockResult
@@ -344,7 +340,7 @@ public class OrderService : IOrderService
 
         try
         {
-            // Databázové připojení z EF Core kontextu
+            // Databázové připojení z EF Core
             var connection = _db.Database.GetDbConnection();
 
             // Otevření připojení při zavřeném stavu
@@ -353,30 +349,26 @@ public class OrderService : IOrderService
                 await connection.OpenAsync();
             }
 
-            // Vytvoření databázového příkazu pro stored procedure
+            // Vytvoření databázového příkazu pro proceduru, Parametr ID order, skladu, uživatele
             await using var command = connection.CreateCommand();
             command.CommandText = "dbo.sp_ReserveStockForOrder";
             command.CommandType = CommandType.StoredProcedure;
 
-            // Parametr ID objednávky
             var orderIdParameter = command.CreateParameter();
             orderIdParameter.ParameterName = "@OrderId";
             orderIdParameter.Value = orderId;
             command.Parameters.Add(orderIdParameter);
 
-            // Parametr ID skladu
             var warehouseIdParameter = command.CreateParameter();
             warehouseIdParameter.ParameterName = "@WarehouseId";
             warehouseIdParameter.Value = 1;
             command.Parameters.Add(warehouseIdParameter);
 
-            // Parametr ID uživatele
             var createdByUserIdParameter = command.CreateParameter();
             createdByUserIdParameter.ParameterName = "@CreatedByUserId";
             createdByUserIdParameter.Value = order.CreatedByUserId;
             command.Parameters.Add(createdByUserIdParameter);
 
-            // Spuštění stored procedure
             await command.ExecuteNonQueryAsync();
 
             // Změna stavu objednávky po úspěšné rezervaci
@@ -402,7 +394,7 @@ public class OrderService : IOrderService
         }
     }
 
-    // Uvolnění rezervace skladu pro objednávku
+    // Uvolnění rezervace skladu
     public async Task<ReserveStockResult> ReleaseStockAsync(int orderId)
     {
         // Načtení objednávky
@@ -429,7 +421,7 @@ public class OrderService : IOrderService
             };
         }
 
-        // Povolení uvolnění pouze pro Confirmed
+        // Povolení pro Confirmed
         if (order.Status != "Confirmed")
         {
             return new ReserveStockResult
@@ -442,39 +434,34 @@ public class OrderService : IOrderService
 
         try
         {
-            // Databázové připojení z EF Core kontextu
+            // pPrvně dat. připojení
             var connection = _db.Database.GetDbConnection();
 
-            // Otevření připojení při zavřeném stavu
             if (connection.State != ConnectionState.Open)
             {
                 await connection.OpenAsync();
             }
 
-            // Vytvoření databázového příkazu pro stored procedure
+            // Vytvoření databázového příkazu pro proceduru, parametr ID order, sklad, uživatel
             await using var command = connection.CreateCommand();
             command.CommandText = "dbo.sp_ReleaseReservedStockForOrder";
             command.CommandType = CommandType.StoredProcedure;
 
-            // Parametr ID objednávky
             var orderIdParameter = command.CreateParameter();
             orderIdParameter.ParameterName = "@OrderId";
             orderIdParameter.Value = orderId;
             command.Parameters.Add(orderIdParameter);
 
-            // Parametr ID skladu
             var warehouseIdParameter = command.CreateParameter();
             warehouseIdParameter.ParameterName = "@WarehouseId";
             warehouseIdParameter.Value = 1;
             command.Parameters.Add(warehouseIdParameter);
 
-            // Parametr ID uživatele
             var createdByUserIdParameter = command.CreateParameter();
             createdByUserIdParameter.ParameterName = "@CreatedByUserId";
             createdByUserIdParameter.Value = order.CreatedByUserId;
             command.Parameters.Add(createdByUserIdParameter);
 
-            // Spuštění stored procedure
             await command.ExecuteNonQueryAsync();
 
             // Vrácení objednávky do stavu Draft

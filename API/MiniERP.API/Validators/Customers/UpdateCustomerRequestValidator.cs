@@ -8,31 +8,31 @@ public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRe
 {
     public UpdateCustomerRequestValidator()
     {
-        // Povolené hodnoty pro CustomerType
+        // Človek - firma
         RuleFor(x => x.CustomerType)
             .NotEmpty()
             .Must(type => type == "Company" || type == "Person")
             .WithMessage("CustomerType musí být 'Company' nebo 'Person'.");
 
-        // Povinný CompanyName pro firmu
+        // Název firmy
         RuleFor(x => x.CompanyName)
             .NotEmpty()
             .When(x => x.CustomerType == "Company")
             .WithMessage("Firma musí mít vyplněný CompanyName.");
 
-        // Povinný FirstName pro osobu
+        // Jméno
         RuleFor(x => x.FirstName)
             .NotEmpty()
             .When(x => x.CustomerType == "Person")
             .WithMessage("Osoba musí mít vyplněné FirstName.");
 
-        // Povinný LastName pro osobu
+        // Příjmení
         RuleFor(x => x.LastName)
             .NotEmpty()
             .When(x => x.CustomerType == "Person")
             .WithMessage("Osoba musí mít vyplněné LastName.");
 
-        // Kontrola formátu e-mailu
+        // format emailu
         RuleFor(x => x.Email)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.Email))

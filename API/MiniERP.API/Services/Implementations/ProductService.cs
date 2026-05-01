@@ -5,10 +5,8 @@ using MiniERP.Data;
 
 namespace MiniERP.API.Services.Implementations;
 
-// Implementace služby pro produkty
 public class ProductService : IProductService
 {
-    // Databázový kontext
     private readonly ApplicationDbContext _db;
 
     public ProductService(ApplicationDbContext db)
