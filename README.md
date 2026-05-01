@@ -33,7 +33,7 @@ Projekt simuluje základní procesy, se kterými jsem se setkal v praxi:
 Cílem nebylo vytvořit hotový ERP systém na zakázku, ale pochopit, jak tyhle části fungují dohromady.
 ---
 
-## 🏗 Architektura projektu
+## Architektura projektu
 
 Projekt je rozdělený do několika vrstev, aby aplikační logika nebyla přímo navázaná na controller ani databázi
 
@@ -50,7 +50,7 @@ Projekt je rozdělený do několika vrstev, aby aplikační logika nebyla přím
 
 ---
 
-## ⚙️ Funkcionalita
+## Funkcionalita
 
 ### Základní moduly
 - zákazníci – evidence a CRUD operace
