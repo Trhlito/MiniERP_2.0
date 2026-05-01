@@ -1,25 +1,15 @@
 # MiniERP
 
-MiniERP je studijní backend projekt vytvořený v ASP.NET Core.  
-Cílem projektu bylo pochopit návrh backendu pro ERP systém – práci s databází, business logikou, API vrstvou a autentizací.
+Projekt MiniERP vznikl jako pokračování mého prvního pokusu o ERP aplikaci.  
+Původně jsem ho měl postavený jako desktop aplikaci ve WinForms, kde jsem si zkoušel práci s daty, CRUD operace a základní logiku.
 
-Projekt vznikal postupně jako praktický trénink backend vývoje.
+Postupně mi ale začalo docházet, že všechno mám moc svázané s UI a jakmile jsem chtěl něco rozšířit, začínalo to být nepřehledné.
 
----
-
-## Co jsem se na projektu naučil
-
-- návrh databázového modelu (Orders, Customers, Stock, Invoices, Payments)
-- tvorba REST API v ASP.NET Core
-- oddělení vrstev (Controller → Service → DTO → Data)
-- práce se SQL Serverem a stored procedures
-- řešení business logiky (Order-to-Cash flow)
-- autentizace a autorizace pomocí ASP.NET Identity + JWT
-- základní audit a bezpečnostní logování
+Proto jsem se rozhodl začít znovu – tentokrát jako backend.
 
 ---
 
-## Použité technologie
+## Použité technologie 
 
 - .NET 8 / ASP.NET Core Web API
 - Entity Framework Core
@@ -29,55 +19,78 @@ Projekt vznikal postupně jako praktický trénink backend vývoje.
 - Swagger (OpenAPI)
 
 ---
+##  Co projekt řeší                                     (aktuálně k verzi 1.2.57)
 
-## Funkcionalita
+Projekt simuluje základní procesy, se kterými jsem se setkal v praxi:
 
-### Základní moduly
-- Customers (CRUD)
-- Orders + OrderItems
-- Stock + StockMovements
-- Invoices + InvoiceItems
-- Payments
+- CRUD operace pro zákazníky, produkty, uživatele  
+- práce se skladem a pohyby zásob  
+- správa objednávek a jejich položek  
+- Order-to-Cash flow (návaznost objednávky, skladu, fakturace a plateb)
+- reporting  
+- autentizace pomocí ASP.NET Identity  
 
-### Order-to-Cash flow
-- vytvoření objednávky
-- rezervace skladu
-- vytvoření faktury z objednávky
-- registrace platby
-- změna stavu objednávky a faktury
+Cílem nebylo vytvořit hotový ERP systém na zakázku, ale pochopit, jak tyhle části fungují dohromady.
+---
 
-### Reporting (SQL stored procedures)
-- Sales summary
-- Unpaid invoices
-- Sales by customer
-- Top selling products
-- Stock alerts
+## 🏗 Architektura projektu
 
-### Autentizace a bezpečnost
-- login přes ASP.NET Identity
-- JWT token
-- refresh token lifecycle (rotation)
-- logout (zneplatnění tokenu)
-- role-based access control (Admin, Manager, User)
+Projekt je rozdělený do několika vrstev, aby aplikační logika nebyla přímo navázaná na controller ani databázi
 
-### Audit a security reporting
-- Auth audit logy (login, refresh, logout)
-- přehled neúspěšných přihlášení
-- audit konkrétního uživatele
-- správa refresh tokenů (revoke, cleanup)
+- **Controllers** – přijímají HTTP požadavky, volají příslušné služby a vrací odpověď přes API  
+- **Services / Interfaces** – obsahují aplikační logiku; rozhraní oddělují kontrakt od konkrétní implementace  
+- **DTOs** – slouží pro přenos dat mezi API a klientem, aby se ven neposílaly přímo databázové entity  
+- **Validators** – kontrolují vstupní data pomocí FluentValidation ještě před zpracováním v business logice  
+- **Entities** – reprezentují databázové tabulky a jsou mapované přes Entity Framework Core  
+- **Data / ApplicationDbContext** – propojuje entity s databází a nastavuje základní mapování modelu 
+- **Seed** – připravuje základní Identity data, například výchozí role a admin účet  
+- **SQL scripts** – obsahují databázový základ, tabulky, vazby a stored procedures
+
+- Kritická logika (např. sklad, fakturace) je částečně přesunuta do SQL stored procedures, aby byla zajištěna konzistence dat na úrovni databáze.
 
 ---
 
-## Architektura
+## ⚙️ Funkcionalita
 
-Projekt je rozdělen do vrstev:
+### Základní moduly
+- zákazníci – evidence a CRUD operace
+- produkty – evidence produktů a základních cen
+- sklad – stav zásob a skladové pohyby
+- objednávky – hlavička objednávky a položky
+- faktury – faktura vytvořená z objednávky a její položky
+- platby – evidence plateb k fakturám
 
-- **Controllers** – vstupní body API
-- **Services** – business logika
-- **DTOs** – data přenášená přes API
-- **Data (EF Core)** – databázový přístup
+### Order-to-Cash flow
+Projekt obsahuje základní tok od objednávky po zaplacení:
 
-Kritická business logika (např. sklad, fakturace) je částečně přesunuta do SQL stored procedures, aby byla zajištěna konzistence dat na úrovni databáze.
+- vytvoření objednávky
+- rezervace skladových zásob
+- vytvoření faktury z objednávky
+- registrace platby
+- změna stavů objednávky a faktury
+
+### Reporting
+Reporty jsou řešené přes SQL stored procedures:
+
+- souhrn prodejů za období
+- přehled neuhrazených faktur
+- prodeje podle zákazníků
+- nejprodávanější produkty
+- skladová upozornění
+
+### Autentizace a bezpečnost
+- přihlášení přes ASP.NET Identity
+- JWT autentizace
+- refresh tokeny včetně rotation mechanismu
+- logout přes zneplatnění refresh tokenu
+- role-based access control pro role Admin, Manager a User
+
+### Audit a security reporting
+- audit přihlášení, refresh tokenů a logoutu
+- přehled neúspěšných přihlášení
+- bezpečnostní audit konkrétního uživatele
+- zneplatnění refresh tokenů uživatele
+- údržba expirovaných refresh tokenů
 
 ---
 
@@ -85,6 +98,10 @@ Kritická business logika (např. sklad, fakturace) je částečně přesunuta d
 
 1. Spustit SQL Server (např. přes Docker)
 2. Vytvořit databázi pomocí SQL scriptu:
+3. Upravit connection string v "appsettings.json"  
+3. Spustit API
+4. Otevřít swagger: "https://localhost:xxxx/swagger"
+
 
 
 # Swagger API Overview
@@ -106,20 +123,7 @@ Kritická business logika (např. sklad, fakturace) je částečně přesunuta d
 
 
 
----
-# Moduly
 
-## 1. Order-to-Cash *(Hotovo)*
-
-První modul systému.  
-Řeší proces od vytvoření zákazníka, přes objednávku, rezervaci skladu, vystavení faktury až po evidenci úhrady.
-
-- Detailní popis procesu je v souboru: RunBook_ORDER_TO_CASH
-
-## Testování autentizace
-- použít endpoint /api/Auth/login
-- získaný JWT token vložit do Swagger Authorize
-- následně testovat chráněné endpointy
 
 
 ## Další rozvoj ->
