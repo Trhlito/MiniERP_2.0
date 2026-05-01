@@ -1,61 +1,91 @@
-# MiniERP_2.0
+# MiniERP
 
-Projekt je zaměřený na postupné budování modulárního ERP systému pro firemní prostředí.  
+MiniERP je studijní backend projekt vytvořený v ASP.NET Core.  
+Cílem projektu bylo pochopit návrh backendu pro ERP systém – práci s databází, business logikou, API vrstvou a autentizací.
 
-Cílem je vytvoření stabilního backendového základu, na který budeme moci dále napojovat další části systému podle potřeb firmy.
+Projekt vznikal postupně jako praktický trénink backend vývoje.
 
 ---
 
-# Technologie
+## Co jsem se na projektu naučil
 
-Projekt je postaven na backend stacku:
+- návrh databázového modelu (Orders, Customers, Stock, Invoices, Payments)
+- tvorba REST API v ASP.NET Core
+- oddělení vrstev (Controller → Service → DTO → Data)
+- práce se SQL Serverem a stored procedures
+- řešení business logiky (Order-to-Cash flow)
+- autentizace a autorizace pomocí ASP.NET Identity + JWT
+- základní audit a bezpečnostní logování
 
-- .NET 8
-- ASP.NET Core Web API
-- C#
+---
+
+## Použité technologie
+
+- .NET 8 / ASP.NET Core Web API
 - Entity Framework Core
-- SQL Server
-- Swagger
+- SQL Server (Docker)
+- ASP.NET Identity
+- JWT (Bearer autentizace)
+- Swagger (OpenAPI)
 
 ---
 
-# Databázový návrh
+## Funkcionalita
 
-Databázová struktura již nyní obsahuje připravené klíčové oblasti systému:
+### Základní moduly
+- Customers (CRUD)
+- Orders + OrderItems
+- Stock + StockMovements
+- Invoices + InvoiceItems
+- Payments
 
-- Users / Roles / UserRoles *(uživatelé, role, oprávnění)*
-- Customers *(zákazníci)*
-- Suppliers *(dodavatelé)*
-- Categories *(kategorie produktů)*
-- Products *(produkty)*
-- Warehouses *(sklady)*
-- Stock / StockMovements *(zásoby a pohyby skladu)*
-- Orders / OrderItems *(objednávky)*
-- Invoices / InvoiceItems *(fakturace)*
-- Payments *(platby)*
-- AuditLogs *(auditní záznamy systému)*
+### Order-to-Cash flow
+- vytvoření objednávky
+- rezervace skladu
+- vytvoření faktury z objednávky
+- registrace platby
+- změna stavu objednávky a faktury
 
+### Reporting (SQL stored procedures)
+- Sales summary
+- Unpaid invoices
+- Sales by customer
+- Top selling products
+- Stock alerts
 
-`Create_database.sql` - soubor Inicializačním SQL scriptem databáze
+### Autentizace a bezpečnost
+- login přes ASP.NET Identity
+- JWT token
+- refresh token lifecycle (rotation)
+- logout (zneplatnění tokenu)
+- role-based access control (Admin, Manager, User)
 
+### Audit a security reporting
+- Auth audit logy (login, refresh, logout)
+- přehled neúspěšných přihlášení
+- audit konkrétního uživatele
+- správa refresh tokenů (revoke, cleanup)
 
 ---
 
-# Architektura projektu
+## Architektura
 
-Projekt používá vícevrstvou strukturu:
+Projekt je rozdělen do vrstev:
 
+- **Controllers** – vstupní body API
+- **Services** – business logika
+- **DTOs** – data přenášená přes API
+- **Data (EF Core)** – databázový přístup
 
-MiniERP.sln
-API/        - Web API vrstva
-Core/       - sdílené modely a logika
-Data/       - databázová vrstva / EF Core
-Tests/      - automatické testy (připravuje se)
-
-API_STRUCTURE.md - soubor stromové struktury 
-  -  Last Update - LOG 1.2.1
+Kritická business logika (např. sklad, fakturace) je částečně přesunuta do SQL stored procedures, aby byla zajištěna konzistence dat na úrovni databáze.
 
 ---
+
+## Spuštění projektu
+
+1. Spustit SQL Server (např. přes Docker)
+2. Vytvořit databázi pomocí SQL scriptu:
+
 
 # Swagger API Overview
 
@@ -76,9 +106,6 @@ API_STRUCTURE.md - soubor stromové struktury
 
 
 
-
-
-
 ---
 # Moduly
 
@@ -89,3 +116,15 @@ První modul systému.
 
 - Detailní popis procesu je v souboru: RunBook_ORDER_TO_CASH
 
+## Testování autentizace
+- použít endpoint /api/Auth/login
+- získaný JWT token vložit do Swagger Authorize
+- následně testovat chráněné endpointy
+
+
+## Další rozvoj ->
+- doplnění validací (FluentValidation)
+- stránkování a filtrování endpointů
+- archivace historických logů
+- rozšíření reporting modulu
+- lepší správa warehouse (více skladů)
