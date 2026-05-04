@@ -46,6 +46,7 @@ Projekt je rozdělený do několika vrstev, aby aplikační logika nebyla přím
 - **Seed** – připravuje základní Identity data, například výchozí role a admin účet  
 - **SQL scripts** – obsahují databázový základ, tabulky, vazby a stored procedures
 
+- Databáze u mě není jen úložiště dat. Snažil jsem se řešit i to, aby dotazy dávaly smysl z pohledu výkonu (indexy na vazby) a aby kritické operace probíhaly spolehlivě (transakce ve stored procedures).
 - Kritická logika (např. sklad, fakturace) je částečně přesunuta do SQL stored procedures, aby byla zajištěna konzistence dat na úrovni databáze.
 
 ---
@@ -123,12 +124,19 @@ Reporty jsou řešené přes SQL stored procedures:
 
 
 
+## Technické poznámky a další rozvoj
 
+Projekt teď řeší hlavně funkční část, ale při práci jsem narazil na věci, které dávají smysl řešit dál:
 
-
-## Další rozvoj ->
-- doplnění validací (FluentValidation)
-- stránkování a filtrování endpointů
-- archivace historických logů
-- rozšíření reporting modulu
+- výkon databáze (indexy, optimalizace dotazů)
+- práce se souběžnými požadavky (hlavně sklad)
+- sjednocení chyb napříč API
+- rozšíření logování
+- archivace starších dat a logů
 - lepší správa warehouse (více skladů)
+- rozšíření reporting modulu
+
+Beru to jako další krok, kam projekt posunout.
+
+
+
