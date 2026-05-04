@@ -97,11 +97,11 @@ Reporty jsou řešené přes SQL stored procedures:
 
 ## Spuštění projektu
 
-1. Spustit SQL Server (např. přes Docker)
-2. Vytvořit databázi pomocí SQL scriptu:
-3. Upravit connection string v "appsettings.json"  
-3. Spustit API
-4. Otevřít swagger: "https://localhost:xxxx/swagger"
+1. Spustit SQL Server, například přes Docker.
+2. Vytvořit databázi pomocí SQL scriptu.
+3. Upravit connection string v `appsettings.json`.
+4. Spustit API.
+5. Otevřít Swagger: `https://localhost:xxxx/swagger`.
 
 
 
