@@ -13,7 +13,7 @@ public static class IdentitySeeder
         var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        // Základní role
+        // Role
         var roles = new[]
         {
             new ApplicationRole { Name = "Admin", NormalizedName = "ADMIN", Description = "Plný přístup k systému" },
