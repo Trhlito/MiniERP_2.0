@@ -3,19 +3,17 @@ using MiniERP.Data.Entities.Auth;
 
 namespace MiniERP.API.Seed;
 
-// Seeder připraví základní role a výchozí admin účet pro první spuštění.
+// Seeder
 public static class IdentitySeeder
 {
-    // Metoda vytvoří základní role a výchozí admin účet
+    // Vytvoříme základní role a výchozí admin účet
     public static async Task SeedAsync(IServiceProvider serviceProvider, IConfiguration configuration)
     {
-        // Načtení služby pro správu rolí
+        // Načtení služeb pro správu rolí a uživatelů
         var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-
-        // Načtení služby pro správu uživatelů
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        // Seznam základních rolí systému
+        // Základní role
         var roles = new[]
         {
             new ApplicationRole { Name = "Admin", NormalizedName = "ADMIN", Description = "Plný přístup k systému" },
@@ -27,27 +25,21 @@ public static class IdentitySeeder
         // Vytvoření rolí, pokud ještě neexistují
         foreach (var role in roles)
         {
-            // Kontrola existence role podle názvu
             var exists = await roleManager.RoleExistsAsync(role.Name!);
-
-            // Přeskočení již existující role
             if (exists)
             {
                 continue;
             }
-
-            // Vytvoření nové role
             await roleManager.CreateAsync(role);
         }
 
-        // Načtení hodnot výchozího admin účtu z konfigurace
+        // Načtení a kontrola hodnot admin účtu z konfigurace
         var adminEmail = configuration["SeedAdmin:Email"];
         var adminUserName = configuration["SeedAdmin:UserName"];
         var adminPassword = configuration["SeedAdmin:Password"];
         var adminFirstName = configuration["SeedAdmin:FirstName"];
         var adminLastName = configuration["SeedAdmin:LastName"];
 
-        // Kontrola povinných hodnot pro admin účet
         if (string.IsNullOrWhiteSpace(adminEmail) ||
             string.IsNullOrWhiteSpace(adminUserName) ||
             string.IsNullOrWhiteSpace(adminPassword))
@@ -55,13 +47,11 @@ public static class IdentitySeeder
             throw new InvalidOperationException("SeedAdmin configuration is missing required values.");
         }
 
-        // Vyhledání admin účtu podle e-mailu
+        // Vyhledání admin účtu dle e-mailu, vytvoření přípravy admin pokud null
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-        // Vytvoření admin účtu, pokud ještě neexistuje
         if (adminUser is null)
         {
-            // Příprava výchozího admin uživatele
             adminUser = new ApplicationUser
             {
                 UserName = adminUserName,
@@ -73,10 +63,9 @@ public static class IdentitySeeder
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Vytvoření uživatele přes ASP.NET Identity
+            // Vytvoření uživatele přes ASP + ošetření chyby při vytvoření
             var createResult = await userManager.CreateAsync(adminUser, adminPassword);
 
-            // Ošetření chyby při vytvoření uživatele
             if (!createResult.Succeeded)
             {
                 var errors = string.Join("; ", createResult.Errors.Select(x => x.Description));
@@ -84,10 +73,9 @@ public static class IdentitySeeder
             }
         }
 
-        // Kontrola, zda má admin přiřazenou roli Admin
+        // Kontrola, a přiřazení role Admin
         var isAdmin = await userManager.IsInRoleAsync(adminUser, "Admin");
 
-        // Přiřazení role Admin, pokud chybí
         if (!isAdmin)
         {
             await userManager.AddToRoleAsync(adminUser, "Admin");
