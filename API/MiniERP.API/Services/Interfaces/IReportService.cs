@@ -2,7 +2,7 @@ using MiniERP.API.DTOs.Reports;
 
 namespace MiniERP.API.Services.Interfaces;
 
-// Služba pro reportovací výstupy
+// rozhranní pro reportovací výstupy
 public interface IReportService
 {
     // Vrací souhrn obchodních dat za zadané období
