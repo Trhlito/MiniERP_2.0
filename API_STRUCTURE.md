@@ -30,7 +30,6 @@ Přijímají HTTP požadavky, volají service vrstvu a vrací odpovědi klientov
 - `ProductsController.cs`
 - `StockController.cs`
 - `StockMovementsController.cs`
-- `WeatherForecastController.cs`
 
 ---
 
