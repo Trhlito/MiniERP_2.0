@@ -31,7 +31,18 @@ Projekt simuluje základní procesy, se kterými jsem se setkal v praxi:
 - autentizace pomocí ASP.NET Identity  
 
 Cílem nebylo vytvořit hotový ERP systém na zakázku, ale pochopit, jak tyhle části fungují dohromady.
+
 ---
+
+## Dokumentace projektu
+
+Pro rychlou orientaci v backendové struktuře projektu je připraven samostatný soubor:
+
+- [API_STRUCTURE.md](./API_STRUCTURE.md) – přehled vrstev, složek a hlavních částí backendu MiniERP
+- [RUNBOOK_ORDER_TO_CASH.md](./RUNBOOK_ORDER_TO_CASH.md) – ukázkový business flow scénář Order-to-Cash
+
+---
+
 
 ## Architektura projektu
 
